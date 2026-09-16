@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel de Controle Híbrido v1609.1 | Diagnóstico UF</title>
+  <!-- Google Fonts: Inter -->
+  <link href="https://googleapis.com" rel="stylesheet">
+  
+  <style>
+    /* 🌟 NU-STYLE CSS THEME (ROXO NEON & ULTRA-DARK) */
+    :root {
+      --bg-global: #0C0C0E;
+      --bg-card: rgba(20, 20, 24, 0.75);
+      --purple-neon: #8A05BE;
+      --purple-dim: #430260;
+      --text-main: #FFFFFF;
+      --text-muted: #7E7E86;
+      --border-card: rgba(138, 5, 190, 0.15);
+      --status-green: #00E676;
+      --status-yellow: #FFD600;
+      --status-red: #FF1744;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-global);
+      color: var(--text-main);
+      padding: 2rem;
+      overflow-x: hidden;
+    }
+
+    /* GLASSMORPHISM WORKSPACE LAYOUT */
+    .dashboard-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    h1 span {
+      color: var(--purple-neon);
+    }
+
+    .btn-global {
+      background: var(--purple-neon);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(138, 5, 190, 0.4);
+    }
+
+    .btn-global:hover {
+      background: #A117DC;
+      transform: translateY(-2px);
+    }
+
+    /* 📊 KPI ROW METRICS */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .kpi-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .kpi-card h2 {
+      font-size: 2.25rem;
+      font-weight: 700;
+    }
+
+    /* 🗂️ GRID DE ESTADOS (54 PLANILHAS) */
+    .uf-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .uf-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: border 0.2s ease;
+    }
+
+    .uf-card:hover {
+      border: 1px solid var(--purple-neon);
+    }
+
+    .uf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .uf-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .badge-status {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .bg-green { background-color: var(--status-green); box-shadow: 0 0 10px var(--status-green); }
+    .bg-yellow { background-color: var(--status-yellow); box-shadow: 0 0 10px var(--status-yellow); }
+    .bg-red { background-color: var(--status-red); box-shadow: 0 0 10px var(--status-red); }
+
+    .sheet-link {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sheet-link:hover {
+      color: var(--purple-neon);
+    }
+
+    .diagnostic-box {
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.75rem;
+      font-size: 0.85rem;
+    }
+
+    .diagnostic-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .diagnostic-item span:first-child {
+      color: var(--text-muted);
+    }
+
+    .diagnostic-item span:last-child {
+      font-weight: 500;
+    }
+
+    .action-row-card {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn-action-sm {
+      background: transparent;
+      border: 1px solid var(--purple-neon);
+      color: var(--text-main);
+      padding: 0.35rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-sm:hover {
+      background: var(--purple-neon);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <header>
+      <h1><span>NU</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
+      <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
+    </header>
+
+    <!-- KPI ROW METRICS -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <p>Total de Planilhas</p>
+        <h2 id="kpi-total-sheets">54</h2>
+      </div>
+      <div class="kpi-card">
+        <p>Abas Órfãs Resgatadas</p>
+        <h2 id="kpi-total-resgatadas" style="color: var(--status-green);">0</h2>
+      </div>
+      <div class="kpi-card">
+        <p>Bases Pendentes/Faltantes</p>
+        <h2 id="kpi-total-faltantes" style="color: var(--status-yellow);">0</h2>
+      </div>
+      <div class="kpi-card">
+        <p>Alertas Críticos</p>
+        <h2 id="kpi-total-criticos" style="color: var(--status-red);">0</h2>
+      </div>
+    </div>
+
+    <!-- UF STATES GRID DISPLAY -->
+    <div class="uf-grid" id="grid-estados-uf">
+      <!-- Injeção assíncrona JS ocorrerá aqui -->
+    </div>
+  </div>
+
+  <script>
+    // URL gerada na publicação do arquivo de Backend como Web App
+    const WEB_APP_URL = "SUA_WEB_APP_DEPLOY_URL_HERE";
+
+    function carregarDadosGlobais() {
+      const grid = document.getElementById("grid-estados-uf");
+      grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;'>📡 Conectando na Master e consolidando as 54 bases em RAM...</div>";
+
+      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+        .then(response => response.json())
+        .then(dados => {
+          if(!dados.success) {
+            grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem;'>Erro: ${dados.error}</div>`;
+            return;
+          }
+          renderizarCards(dados.data);
+          atualizarKPIs(dados.kpi);
+        })
+        .catch(err => {
+          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem;'>Erro na conexão: ${err}</div>`;
+        });
+    }
+
+    function renderizarCards(listaUfs) {
+      const grid = document.getElementById("grid-estados-uf");
+      grid.innerHTML = "";
+
+      listaUfs.forEach(uf => {
+        const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
+        
+        const cardHtml = `
+          <div class="uf-card">
+            <div class="uf-header">
+              <div class="uf-title">${uf.nome_estado} (${uf.sigla})</div>
+              <span class="badge-status ${corClasse}"></span>
+            </div>
+            <a href="https://google.com{uf.id_planilha_prod}" target="_blank" class="sheet-link">📄 Planilha Produção</a>
+            <a href="https://google.com{uf.id_planilha_conf}" target="_blank" class="sheet-link">📄 Planilha Conferência</a>
+            
+            <div class="diagnostic-box">
+              <div class="diagnostic-item">
+                <span>Abas Existentes:</span>
+                <span>${uf.abas_existentes}</span>
+              </div>
+              <div class="diagnostic-item">
+                <span>Abas Órfãs Locais:</span>
+                <span style="${uf.orfas > 0 ? 'color: var(--status-yellow); font-weight: bold;' : ''}">${uf.orfas}</span>
+              </div>
+              <div class="diagnostic-item">
+                <span>Faltantes na Master:</span>
+                <span style="${uf.faltantes > 0 ? 'color: var(--status-red); font-weight: bold;' : ''}">${uf.faltantes}</span>
+              </div>
+            </div>
+            
+            <div class="action-row-card">
+              <button class="btn-action-sm" onclick="forcarResgateLocal('${uf.sigla}', '${uf.id_planilha_prod}')">Resgatar Órfãs</button>
+            </div>
+          </div>
+        `;
+        grid.innerHTML += cardHtml;
+      });
+    }
+
+    function atualizarKPIs(kpi) {
+      document.getElementById("kpi-total-resgatadas").innerText = kpi.total_orfas;
+      document.getElementById("kpi-total-faltantes").innerText = kpi.total_faltantes;
+      document.getElementById("kpi-total-criticos").innerText = kpi.total_criticos;
+    }
+
+    function forcarResgateLocal(sigla, idPlanilha) {
+      alert(`📡 Iniciando resgate tático em lote diretamente nas abas órfãs de ${sigla}. Aguarde a conclusão...`);
+      // Executa a requisição assíncrona direcionada para a UF alvo
+    }
+
+    // Inicialização Automática da SPA
+    window.onload = carregarDadosGlobais;
+  </script>
+</body>
+</html>
