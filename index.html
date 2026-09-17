@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Painel de Controle Híbrido v1609.1 | Diagnóstico UF</title>
-  <!-- Google Fonts: Inter -->
+  <title>Painel de Controle Híbrido | Diagnóstico UF (White Mode)</title>
   <link href="https://googleapis.com" rel="stylesheet">
   
   <style>
-    /* 🌟 NU-STYLE CSS THEME (ROXO NEON & ULTRA-DARK) */
+    /* 🌟 WHITE MODE PREMIUM THEME (MINIMALISTA, CLEAN & ACESSÍVEL) */
     :root {
-      --bg-global: #0C0C0E;
-      --bg-card: rgba(20, 20, 24, 0.75);
+      --bg-global: #F4F4F6;
+      --bg-card: #FFFFFF;
       --purple-neon: #8A05BE;
-      --purple-dim: #430260;
-      --text-main: #FFFFFF;
-      --text-muted: #7E7E86;
-      --border-card: rgba(138, 5, 190, 0.15);
-      --status-green: #00E676;
+      --purple-dim: #EED6FF;
+      --text-main: #1C1C1E;
+      --text-muted: #6E6E73;
+      --border-card: rgba(138, 5, 190, 0.08);
+      --shadow-clean: 0 4px 20px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+      --status-green: #00C853;
       --status-yellow: #FFD600;
       --status-red: #FF1744;
     }
@@ -37,7 +37,6 @@
       overflow-x: hidden;
     }
 
-    /* GLASSMORPHISM WORKSPACE LAYOUT */
     .dashboard-container {
       max-width: 1400px;
       margin: 0 auto;
@@ -48,14 +47,15 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2.5rem;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
       padding-bottom: 1.5rem;
     }
 
     h1 {
       font-size: 1.75rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: -0.5px;
+      color: #000000;
     }
 
     h1 span {
@@ -68,15 +68,16 @@
       border: none;
       padding: 0.75rem 1.5rem;
       border-radius: 8px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(138, 5, 190, 0.4);
+      box-shadow: 0 4px 12px rgba(138, 5, 190, 0.2);
     }
 
     .btn-global:hover {
-      background: #A117DC;
-      transform: translateY(-2px);
+      background: #70029E;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(138, 5, 190, 0.3);
     }
 
     /* 📊 KPI ROW METRICS */
@@ -90,25 +91,27 @@
     .kpi-card {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 1.5rem;
-      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow-clean);
     }
 
     .kpi-card p {
       color: var(--text-muted);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
+      font-weight: 600;
       margin-bottom: 0.5rem;
     }
 
     .kpi-card h2 {
-      font-size: 2.25rem;
+      font-size: 2.5rem;
       font-weight: 700;
+      color: #000000;
     }
 
-    /* 🗂️ GRID DE ESTADOS (54 PLANILHAS) */
+    /* 🗂️ GRID DE ESTADOS */
     .uf-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -117,64 +120,68 @@
 
     .uf-card {
       background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: border 0.2s ease;
+      border: 1px solid rgba(0, 0, 0, 0.04);
+      border-radius: 14px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-clean);
+      transition: all 0.2s ease;
     }
 
     .uf-card:hover {
       border: 1px solid var(--purple-neon);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
     }
 
     .uf-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.25rem;
     }
 
     .uf-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #000000;
     }
 
     .badge-status {
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       display: inline-block;
     }
 
-    .bg-green { background-color: var(--status-green); box-shadow: 0 0 10px var(--status-green); }
-    .bg-yellow { background-color: var(--status-yellow); box-shadow: 0 0 10px var(--status-yellow); }
-    .bg-red { background-color: var(--status-red); box-shadow: 0 0 10px var(--status-red); }
+    .bg-green { background-color: var(--status-green); box-shadow: 0 0 8px rgba(0, 200, 83, 0.4); }
+    .bg-yellow { background-color: var(--status-yellow); box-shadow: 0 0 8px rgba(255, 214, 0, 0.4); }
+    .bg-red { background-color: var(--status-red); box-shadow: 0 0 8px rgba(255, 23, 68, 0.4); }
 
     .sheet-link {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--purple-neon);
       margin-bottom: 0.75rem;
       text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-weight: 500;
     }
 
     .sheet-link:hover {
-      color: var(--purple-neon);
+      text-decoration: underline;
     }
 
     .diagnostic-box {
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-      padding-top: 0.75rem;
-      font-size: 0.85rem;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      margin-top: 1rem;
+      padding-top: 1rem;
+      font-size: 0.9rem;
     }
 
     .diagnostic-item {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.6rem;
     }
 
     .diagnostic-item span:first-child {
@@ -182,52 +189,56 @@
     }
 
     .diagnostic-item span:last-child {
-      font-weight: 500;
+      font-weight: 600;
+      color: #000000;
     }
 
     .action-row-card {
-      margin-top: 1rem;
+      margin-top: 1.25rem;
       display: flex;
       justify-content: flex-end;
     }
 
     .btn-action-sm {
-      background: transparent;
-      border: 1px solid var(--purple-neon);
-      color: var(--text-main);
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
+      background: var(--purple-dim);
+      border: none;
+      color: var(--purple-neon);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .btn-action-sm:hover {
       background: var(--purple-neon);
+      color: white;
     }
   </style>
 </head>
+
 <body>
 
   <div class="dashboard-container">
     <header>
-      <h1><span>NU</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
+      <h1><span>SmartCargas</span> - ECOSYSTEM DIAGNOSTIC PANEL</h1>
       <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
     </header>
 
-    <!-- KPI ROW METRICS -->
+    <!-- KPI ROW METRICS (CÁLCULO DINÂMICO REAL) -->
     <div class="kpi-row">
       <div class="kpi-card">
         <p>Total de Planilhas</p>
         <h2 id="kpi-total-sheets">54</h2>
       </div>
       <div class="kpi-card">
-        <p>Abas Órfãs Resgatadas</p>
-        <h2 id="kpi-total-resgatadas" style="color: var(--status-green);">0</h2>
+        <p>Abas Órfãs Locais</p>
+        <h2 id="kpi-total-resgatadas" style="color: var(--purple-neon);">0</h2>
       </div>
       <div class="kpi-card">
-        <p>Bases Pendentes/Faltantes</p>
-        <h2 id="kpi-total-faltantes" style="color: var(--status-yellow);">0</h2>
+        <p>Faltantes na Master</p>
+        <h2 id="kpi-total-faltantes" style="color: #F57C00;">0</h2>
       </div>
       <div class="kpi-card">
         <p>Alertas Críticos</p>
@@ -242,29 +253,25 @@
   </div>
 
   <script>
-    // URL gerada na publicação do arquivo de Backend como Web App
-
-     // 1
-    // const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec";
-    // 2
+    // 🌟 INJEÇÃO: Substitua pelo link publicado da sua Web App de Controle local
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
-    
+
     function carregarDadosGlobais() {
       const grid = document.getElementById("grid-estados-uf");
-      grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;'>📡 Conectando na Master e consolidando as 54 bases em RAM...</div>";
+      grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
 
       fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
         .then(response => response.json())
         .then(dados => {
           if(!dados.success) {
-            grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem;'>Erro: ${dados.error}</div>`;
+            grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
             return;
           }
           renderizarCards(dados.data);
-          atualizarKPIs(dados.kpi);
+          calcularKPIsDinâmicos(dados.data);
         })
         .catch(err => {
-          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem;'>Erro na conexão: ${err}</div>`;
+          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
         });
     }
 
@@ -272,8 +279,14 @@
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
 
+      if(listaUfs.length === 0) {
+        grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;'>Nenhum estado localizado na aba METRICAS_UF.</div>";
+        return;
+      }
+
       listaUfs.forEach(uf => {
-        const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
+        // Árvore de decisão visual Nu-Style White Mode
+        const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         
         const cardHtml = `
           <div class="uf-card">
@@ -281,21 +294,24 @@
               <div class="uf-title">${uf.nome_estado} (${uf.sigla})</div>
               <span class="badge-status ${corClasse}"></span>
             </div>
-            <a href="https://google.com{uf.id_planilha_prod}" target="_blank" class="sheet-link">📄 Planilha Produção</a>
-            <a href="https://google.com{uf.id_planilha_conf}" target="_blank" class="sheet-link">📄 Planilha Conferência</a>
+            <a href="https://google.com{uf.id_planilha_prod}" target="_blank" class="sheet-link">🔗 Planilha Produção</a>
             
             <div class="diagnostic-box">
               <div class="diagnostic-item">
-                <span>Abas Existentes:</span>
+                <span>Abas Ativas:</span>
                 <span>${uf.abas_existentes}</span>
               </div>
               <div class="diagnostic-item">
                 <span>Abas Órfãs Locais:</span>
-                <span style="${uf.orfas > 0 ? 'color: var(--status-yellow); font-weight: bold;' : ''}">${uf.orfas}</span>
+                <span style="${uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">${uf.orfas}</span>
               </div>
               <div class="diagnostic-item">
-                <span>Faltantes na Master:</span>
-                <span style="${uf.faltantes > 0 ? 'color: var(--status-red); font-weight: bold;' : ''}">${uf.faltantes}</span>
+                <span>Faltantes Master:</span>
+                <span style="${uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">${uf.faltantes}</span>
+              </div>
+              <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem;">
+                <span>Atualizado em:</span>
+                <span>${uf.atualizado_em}</span>
               </div>
             </div>
             
@@ -308,18 +324,38 @@
       });
     }
 
-    function atualizarKPIs(kpi) {
-      document.getElementById("kpi-total-resgatadas").innerText = kpi.total_orfas;
-      document.getElementById("kpi-total-faltantes").innerText = kpi.total_faltantes;
-      document.getElementById("kpi-total-criticos").innerText = kpi.total_criticos;
+    // 🌟 ENGINE DE SOMA DINÂMICA: Extrai os totais reais somando a matriz de bipes em RAM
+    function calcularKPIsDinâmicos(listaUfs) {
+      let somaOrfas = 0;
+      let somaFaltantes = 0;
+      let somaCriticos = 0;
+
+      listaUfs.forEach(uf => {
+        somaOrfas += parseInt(uf.orfas) || 0;
+        somaFaltantes += parseInt(uf.faltantes) || 0;
+        somaCriticos += parseInt(uf.criticos) || 0;
+      });
+
+      document.getElementById("kpi-total-sheets").innerText = listaUfs.length;
+      document.getElementById("kpi-total-resgatadas").innerText = somaOrfas;
+      document.getElementById("kpi-total-faltantes").innerText = somaFaltantes;
+      document.getElementById("kpi-total-criticos").innerText = somaCriticos;
     }
 
     function forcarResgateLocal(sigla, idPlanilha) {
-      alert(`📡 Iniciando resgate tático em lote diretamente nas abas órfãs de ${sigla}. Aguarde a conclusão...`);
-      // Executa a requisição assíncrona direcionada para a UF alvo
+      if(confirm(`⚠️ Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?`)) {
+        const grid = document.getElementById("grid-estados-uf");
+        fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
+          .then(res => response.json())
+          .then(res => {
+            alert(res.message || "Comando enviado!");
+            carregarDadosGlobais(); // Força a re-renderização da SPA
+          })
+          .catch(err => alert("Erro ao despachar comando: " + err));
+      }
     }
 
-    // Inicialização Automática da SPA
+    // Inicialização síncrona
     window.onload = carregarDadosGlobais;
   </script>
 </body>
