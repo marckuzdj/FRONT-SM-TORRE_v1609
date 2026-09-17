@@ -343,17 +343,37 @@
     }
 
     function forcarResgateLocal(sigla, idPlanilha) {
-      if(confirm(`⚠️ Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?`)) {
-        const grid = document.getElementById("grid-estados-uf");
+      // Abre caixa de diálogo nativa integrada ao White Mode para confirmação de ação administrativa
+      if (confirm(`⚠️ ATENÇÃO: Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?\n\nIsso injetará os bipes na Master DETALHADO e excluirá as abas locais residuais.`)) {
+        
+        // Alerta visual de processamento em background
+        const cardStatusTopo = document.getElementById("kpi-total-criticos");
+        const textoOriginalCard = cardStatusTopo.innerText;
+        cardStatusTopo.innerText = "⏳ RUN";
+        cardStatusTopo.style.color = "var(--purple-neon)";
+
+        console.log(`📡 Despachando Web-Hook para a planilha ID: ${idPlanilha}`);
+
+        // Requisição HTTP GET assíncrona direcionada para a API do Apps Script
         fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
-          .then(res => response.json())
+          .then(response => response.json())
           .then(res => {
-            alert(res.message || "Comando enviado!");
-            carregarDadosGlobais(); // Força a re-renderização da SPA
+            if (res.success) {
+              alert(`✅ SUCESSO [${sigla}]:\n${res.message}`);
+            } else {
+              alert(`❌ ERRO NO SERVIDOR [${sigla}]:\n${res.error}`);
+            }
+            // Auto-recarrega a SPA re-calculando os KPIs na memória RAM imediatamente após a ação
+            carregarDadosGlobais();
           })
-          .catch(err => alert("Erro ao despachar comando: " + err));
+          .catch(err => {
+            alert(`🚨 ERRO DE CONEXÃO API:\nNão foi possível contatar o orquestrador central. Detalhes: ${err}`);
+            cardStatusTopo.innerText = textoOriginalCard;
+            cardStatusTopo.style.color = "var(--status-red)";
+          });
       }
     }
+
 
     // Inicialização síncrona
     window.onload = carregarDadosGlobais;
