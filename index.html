@@ -215,6 +215,17 @@
       background: var(--purple-neon);
       color: white;
     }
+
+    /* 🚨 COLOGUE ISSO EXATAMENTE ANTES DO FECHAMENTO DA TAG </style> */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 9999; }
+  .modal-box { background: #FFFFFF; width: 600px; border-radius: 16px; padding: 2rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15); border: 1px solid rgba(0, 0, 0, 0.05); }
+  .modal-box h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; color: #000000; }
+  .progress-wrapper { background: #E5E5EA; width: 100%; height: 8px; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; }
+  .progress-bar { width: 0%; height: 100%; background: var(--purple-neon); border-radius: 10px; transition: width 0.3s ease; }
+  .terminal-box { background: #1C1C1E; border-radius: 8px; padding: 1rem; height: 200px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; color: #00E676; line-height: 1.4; margin-bottom: 1.5rem; text-align: left; }
+  .terminal-box .log-err { color: #FF1744; }
+  .terminal-box .log-info { color: #FFD600; }  
+    
   </style>
 </head>
 
@@ -252,28 +263,85 @@
     </div>
   </div>
 
+  <!-- 🚨 INJETE ESTE BLOCO LOGO ABAIXO DA SUA DIV uf-grid (ANTES DA TAG <script>) -->
+  <div class="modal-overlay" id="modal-resgate">
+    <div class="modal-box">
+      <h3 id="modal-titulo">Processando Resgate Tático...</h3>
+      <div class="progress-wrapper">
+        <div class="progress-bar" id="barra-progresso"></div>
+      </div>
+      <div class="terminal-box" id="terminal-logs"></div>
+      <div style="display: flex; justify-content: flex-end;">
+        <button class="btn-global" id="btn-fechar-modal" style="display: none;" onclick="document.getElementById('modal-resgate').style.display='none'">Fechar Painel</button>
+      </div>
+    </div>
+  </div>
+  
   <script>
     // 🌟 INJEÇÃO: Substitua pelo link publicado da sua Web App de Controle local
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
 
-    function carregarDadosGlobais() {
-      const grid = document.getElementById("grid-estados-uf");
-      grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
+  // 🚀 INJETE ESTA NOVA VERSÃO PARA DAR VISIBILIDADE OPERACIONAL À VARREDURA GLOBAL
+  function carregarDadosGlobais() {
+    const grid = document.getElementById("grid-estados-uf");
+    
+    // Captura os elementos do modal que já temos na estrutura HTML
+    const modal = document.getElementById("modal-resgate");
+    const barra = document.getElementById("barra-progresso");
+    const terminal = document.getElementById("terminal-logs");
+    const btnFechar = document.getElementById("btn-fechar-modal");
+    
+    // Configura o modal para o modo de Auditoria Global e abre na tela
+    document.getElementById("modal-titulo").innerText = "Auditoria Global do Ecossistema (54 UFs)";
+    modal.style.display = "flex";
+    barra.style.width = "15%";
+    barra.style.background = "var(--purple-neon)";
+    btnFechar.style.display = "none";
+    
+    terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
+    
+    grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
+  
+    setTimeout(() => {
+      barra.style.width = "50%";
+      terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Servidor processando caches da Master e lendo registros da METRICAS_UF...<br>`;
+    }, 500);
+  
+    // Dispara a requisição HTTP real para a sua API Web App do Google Sheets
+    fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+      .then(response => response.json())
+      .then(dados => {
+        if(!dados.success) {
+          barra.style.width = "100%";
+          barra.style.background = "var(--status-red)";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Falha do Servidor: ${dados.error}<br>`;
+          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
+          btnFechar.style.display = "block";
+          return;
+        }
+        
+        // Avança a barra para o sucesso e detalha os logs
+        barra.style.width = "100%";
+        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM com integridade.<br>`;
+        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Mapeamento concluído! Exibindo cards operacionais na tela.<br>`;
+        
+        // Renderiza os cards e fecha o modal automaticamente após 1.2 segundos para não travar a tela
+        renderizarCards(dados.data);
+        calcularKPIsDinâmicos(dados.data);
+        
+        setTimeout(() => {
+          modal.style.display = "none";
+        }, 1200);
+      })
+      .catch(err => {
+        barra.style.width = "100%";
+        barra.style.background = "var(--status-red)";
+        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Queda ou bloqueio de rede API: ${err}<br>`;
+        grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
+        btnFechar.style.display = "block";
+      });
+  }
 
-      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-        .then(response => response.json())
-        .then(dados => {
-          if(!dados.success) {
-            grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
-            return;
-          }
-          renderizarCards(dados.data);
-          calcularKPIsDinâmicos(dados.data);
-        })
-        .catch(err => {
-          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
-        });
-    }
 
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
@@ -342,41 +410,77 @@
       document.getElementById("kpi-total-criticos").innerText = somaCriticos;
     }
 
+    // 🚀 INJETE ESTA NOVA VERSÃO DA FUNÇÃO PARA CONTROLAR OS COMPONENTES VISUAIS
     function forcarResgateLocal(sigla, idPlanilha) {
-      // Abre caixa de diálogo nativa integrada ao White Mode para confirmação de ação administrativa
       if (confirm(`⚠️ ATENÇÃO: Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?\n\nIsso injetará os bipes na Master DETALHADO e excluirá as abas locais residuais.`)) {
         
-        // Alerta visual de processamento em background
-        const cardStatusTopo = document.getElementById("kpi-total-criticos");
-        const textoOriginalCard = cardStatusTopo.innerText;
-        cardStatusTopo.innerText = "⏳ RUN";
-        cardStatusTopo.style.color = "var(--purple-neon)";
-
-        console.log(`📡 Despachando Web-Hook para a planilha ID: ${idPlanilha}`);
-
-        // Requisição HTTP GET assíncrona direcionada para a API do Apps Script
-        fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
-          .then(response => response.json())
-          .then(res => {
-            if (res.success) {
-              alert(`✅ SUCESSO [${sigla}]:\n${res.message}`);
-            } else {
-              alert(`❌ ERRO NO SERVIDOR [${sigla}]:\n${res.error}`);
-            }
-            // Auto-recarrega a SPA re-calculando os KPIs na memória RAM imediatamente após a ação
-            carregarDadosGlobais();
-          })
-          .catch(err => {
-            alert(`🚨 ERRO DE CONEXÃO API:\nNão foi possível contatar o orquestrador central. Detalhes: ${err}`);
-            cardStatusTopo.innerText = textoOriginalCard;
-            cardStatusTopo.style.color = "var(--status-red)";
-          });
+        // Captura os elementos do modal injetado
+        const modal = document.getElementById("modal-resgate");
+        const barra = document.getElementById("barra-progresso");
+        const terminal = document.getElementById("terminal-logs");
+        const btnFechar = document.getElementById("btn-fechar-modal");
+        
+        // Abre e reseta o painel visual
+        document.getElementById("modal-titulo").innerText = `Operação de Contingência: ${sigla}`;
+        modal.style.display = "flex";
+        barra.style.width = "10%";
+        barra.style.background = "var(--purple-neon)";
+        btnFechar.style.display = "none";
+        
+        terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Estabelecendo canal com a Planilha de Controle...<br>`;
+        
+        setTimeout(() => {
+          barra.style.width = "35%";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Abrindo arquivo regional via ID do Drive...<br>`;
+        }, 600);
+    
+        setTimeout(() => {
+          barra.style.width = "60%";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Invocando função real executarResgateEExpurgoAbasOrfas...<br>`;
+          
+          // Dispara a requisição HTTP GET para a sua Web App ativa no Google
+          fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
+            .then(response => response.json())
+            .then(res => {
+              if (res.success) {
+                barra.style.width = "100%";
+                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> ${res.message}<br>`;
+                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Sincronização concluída. Painel local atualizado em lote.`;
+              } else {
+                barra.style.width = "100%";
+                barra.style.background = "var(--status-red)";
+                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> ${res.error}<br>`;
+              }
+              btnFechar.style.display = "block";
+              carregarDadosGlobais(); // Recarrega os cards e recalcula os KPIs na tela
+            })
+            .catch(err => {
+              barra.style.width = "100%";
+              barra.style.background = "var(--status-red)";
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Falha crítica na rede API: ${err}<br>`;
+              btnFechar.style.display = "block";
+            });
+        }, 1400);
       }
     }
 
 
+
     // Inicialização síncrona
-    window.onload = carregarDadosGlobais;
+   // window.onload = carregarDadosGlobais;
+        // 🎯 INJEÇÃO CIRÚRGICA: Carrega os dados de forma silenciosa na abertura inicial, deixando o modal de logs apenas para o clique manual do botão
+    window.onload = function() {
+      // Faz o fetch em silêncio apenas para desenhar os cards da primeira vez
+      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+        .then(res => res.json())
+        .then(dados => {
+          if(dados.success) {
+            renderizarCards(dados.data);
+            calcularKPIsDinâmicos(dados.data);
+          }
+        }).catch(err => console.error("Primeira carga falhou:", err));
+    };
+
   </script>
 </body>
 </html>
