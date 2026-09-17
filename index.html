@@ -7,7 +7,7 @@
   <link href="https://googleapis.com" rel="stylesheet">
   
   <style>
-    /* 🌟 WHITE MODE PREMIUM THEME (MINIMALISTA, CLEAN & ACESSÍVEL) */
+    /* 🌟 WHITE MODE PREMIUM THEME */
     :root {
       --bg-global: #F4F4F6;
       --bg-card: #FFFFFF;
@@ -216,28 +216,82 @@
       color: white;
     }
 
-    /* 🚨 COLOGUE ISSO EXATAMENTE ANTES DO FECHAMENTO DA TAG </style> */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 9999; }
-  .modal-box { background: #FFFFFF; width: 600px; border-radius: 16px; padding: 2rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15); border: 1px solid rgba(0, 0, 0, 0.05); }
-  .modal-box h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; color: #000000; }
-  .progress-wrapper { background: #E5E5EA; width: 100%; height: 8px; border-radius: 10px; margin-bottom: 1.5rem; overflow: hidden; }
-  .progress-bar { width: 0%; height: 100%; background: var(--purple-neon); border-radius: 10px; transition: width 0.3s ease; }
-  .terminal-box { background: #1C1C1E; border-radius: 8px; padding: 1rem; height: 200px; overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.8rem; color: #00E676; line-height: 1.4; margin-bottom: 1.5rem; text-align: left; }
-  .terminal-box .log-err { color: #FF1744; }
-  .terminal-box .log-info { color: #FFD600; }  
+    /* 🚨 MODAL PROGRESSO & LOGS */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(4px);
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
     
+    .modal-box {
+      background: #FFFFFF;
+      width: 600px;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .modal-box h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: #000000;
+    }
+    
+    .progress-wrapper {
+      background: #E5E5EA;
+      width: 100%;
+      height: 8px;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      background: var(--purple-neon);
+      border-radius: 10px;
+      transition: width 0.3s ease;
+    }
+    
+    .terminal-box {
+      background: #1C1C1E;
+      border-radius: 8px;
+      padding: 1rem;
+      height: 200px;
+      overflow-y: auto;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.8rem;
+      color: #00E676;
+      line-height: 1.4;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    
+    .terminal-box .log-err { color: #FF1744; }
+    .terminal-box .log-info { color: #FFD600; }
   </style>
 </head>
 
-<body>
+  <body>
 
   <div class="dashboard-container">
     <header>
-      <h1><span>SMARTCARGAS</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
+      <h1><span>SmartCargas</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
       <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
     </header>
 
-    <!-- KPI ROW METRICS (CÁLCULO DINÂMICO REAL) -->
+    <!-- KPI ROW METRICS -->
     <div class="kpi-row">
       <div class="kpi-card">
         <p>Total de Planilhas</p>
@@ -258,12 +312,10 @@
     </div>
 
     <!-- UF STATES GRID DISPLAY -->
-    <div class="uf-grid" id="grid-estados-uf">
-      <!-- Injeção assíncrona JS ocorrerá aqui -->
-    </div>
+    <div class="uf-grid" id="grid-estados-uf"></div>
   </div>
 
-  <!-- 🚨 INJETE ESTE BLOCO LOGO ABAIXO DA SUA DIV uf-grid (ANTES DA TAG <script>) -->
+  <!-- CONTAINER DO MODAL DIALÓGICO DE RESGATE -->
   <div class="modal-overlay" id="modal-resgate">
     <div class="modal-box">
       <h3 id="modal-titulo">Processando Resgate Tático...</h3>
@@ -276,86 +328,88 @@
       </div>
     </div>
   </div>
-  
+    
   <script>
-    // 🌟 INJEÇÃO: Substitua pelo link publicado da sua Web App de Controle local
+    // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
 
-  // 🚀 INJETE ESTA NOVA VERSÃO PARA DAR VISIBILIDADE OPERACIONAL À VARREDURA GLOBAL
-  function carregarDadosGlobais() {
-    const grid = document.getElementById("grid-estados-uf");
-    
-    // Captura os elementos do modal que já temos na estrutura HTML
-    const modal = document.getElementById("modal-resgate");
-    const barra = document.getElementById("barra-progresso");
-    const terminal = document.getElementById("terminal-logs");
-    const btnFechar = document.getElementById("btn-fechar-modal");
-    
-    // Configura o modal para o modo de Auditoria Global e abre na tela
-    document.getElementById("modal-titulo").innerText = "Auditoria Global do Ecossistema (54 UFs)";
-    modal.style.display = "flex";
-    barra.style.width = "15%";
-    barra.style.background = "var(--purple-neon)";
-    btnFechar.style.display = "none";
-    
-    terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
-    
-    grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
-  
-    setTimeout(() => {
-      barra.style.width = "50%";
-      terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Servidor processando caches da Master e lendo registros da METRICAS_UF...<br>`;
-    }, 500);
-  
-    // Dispara a requisição HTTP real para a sua API Web App do Google Sheets
-    fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-      .then(response => response.json())
-      .then(dados => {
-        if(!dados.success) {
+    function carregarDadosGlobais() {
+      const grid = document.getElementById("grid-estados-uf");
+      const modal = document.getElementById("modal-resgate");
+      const barra = document.getElementById("barra-progresso");
+      const terminal = document.getElementById("terminal-logs");
+      const btnFechar = document.getElementById("btn-fechar-modal");
+      
+      document.getElementById("modal-titulo").innerText = "Auditoria Global do Ecossistema (54 UFs)";
+      modal.style.display = "flex";
+      barra.style.width = "15%";
+      barra.style.background = "var(--purple-neon)";
+      btnFechar.style.display = "none";
+      
+      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
+      grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
+
+      setTimeout(() => {
+        barra.style.width = "50%";
+        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Servidor processando caches da Master e lendo registros da METRICAS_UF...<br>`;
+      }, 500);
+
+      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+        .then(response => response.json())
+        .then(dados => {
+          if(!dados.success) {
+            barra.style.width = "100%";
+            barra.style.background = "var(--status-red)";
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Falha do Servidor: ${dados.error}<br>`;
+            grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
+            btnFechar.style.display = "block";
+            return;
+          }
+          
+          barra.style.width = "100%";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM com integridade.<br>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Mapeamento concluído! Exibindo cards operacionais na tela.<br>`;
+          
+          renderizarCards(dados.data);
+          calcularKPIsDinâmicos(dados.data);
+          
+          setTimeout(() => {
+            modal.style.display = "none";
+          }, 1200);
+        })
+        .catch(err => {
           barra.style.width = "100%";
           barra.style.background = "var(--status-red)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Falha do Servidor: ${dados.error}<br>`;
-          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Queda ou bloqueio de rede API: ${err}<br>`;
+          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
           btnFechar.style.display = "block";
-          return;
-        }
-        
-        // Avança a barra para o sucesso e detalha os logs
-        barra.style.width = "100%";
-        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM com integridade.<br>`;
-        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Mapeamento concluído! Exibindo cards operacionais na tela.<br>`;
-        
-        // Renderiza os cards e fecha o modal automaticamente após 1.2 segundos para não travar a tela
-        renderizarCards(dados.data);
-        calcularKPIsDinâmicos(dados.data);
-        
-        setTimeout(() => {
-          modal.style.display = "none";
-        }, 1200);
-      })
-      .catch(err => {
-        barra.style.width = "100%";
-        barra.style.background = "var(--status-red)";
-        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Queda ou bloqueio de rede API: ${err}<br>`;
-        grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
-        btnFechar.style.display = "block";
-      });
-  }
+        });
+    }
 
+    // 🎯 FORMATADOR DE DATA PREMIUM BRASILEIRO (dd/MM/yyyy HH:mm:ss)
+    function formatarDataBR(dataString) {
+      if (!dataString || dataString === "Sem registro" || dataString === "ERRO DE CONEXÃO") return dataString;
+      try {
+        const dataObj = new Date(dataString);
+        if (isNaN(dataObj.getTime())) return dataString;
+        const dia = String(dataObj.getDate()).padStart(2, '0');
+        const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+        const ano = dataObj.getFullYear();
+        const hora = String(dataObj.getHours()).padStart(2, '0');
+        const minuto = String(dataObj.getMinutes()).padStart(2, '0');
+        const segundo = String(dataObj.getSeconds()).padStart(2, '0');
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
+      } catch (e) { return dataString; }
+    }
 
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
-
-      if(listaUfs.length === 0) {
-        grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem;'>Nenhum estado localizado na aba METRICAS_UF.</div>";
-        return;
-      }
-
+      
       listaUfs.forEach(uf => {
-        // Árvore de decisão visual Nu-Style White Mode
         const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
-        
+        const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
+
         const cardHtml = `
           <div class="uf-card">
             <div class="uf-header">
@@ -363,26 +417,14 @@
               <span class="badge-status ${corClasse}"></span>
             </div>
             <a href="https://google.com{uf.id_planilha_prod}" target="_blank" class="sheet-link">🔗 Planilha Produção</a>
-            
             <div class="diagnostic-box">
-              <div class="diagnostic-item">
-                <span>Abas Ativas:</span>
-                <span>${uf.abas_existentes}</span>
-              </div>
-              <div class="diagnostic-item">
-                <span>Abas Órfãs Locais:</span>
-                <span style="${uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">${uf.orfas}</span>
-              </div>
-              <div class="diagnostic-item">
-                <span>Faltantes Master:</span>
-                <span style="${uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">${uf.faltantes}</span>
-              </div>
+              <div class="diagnostic-item"><span>Abas Ativas:</span><span>${uf.abas_existentes}</span></div>
+              <div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="${uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">${uf.orfas}</span></div>
+              <div class="diagnostic-item"><span>Faltantes Master:</span><span style="${uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">${uf.faltantes}</span></div>
               <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem;">
-                <span>Atualizado em:</span>
-                <span>${uf.atualizado_em}</span>
+                <span>Atualizado em:</span><span style="font-weight: 500; color: var(--text-muted);">${dataFormatadaPronta}</span>
               </div>
             </div>
-            
             <div class="action-row-card">
               <button class="btn-action-sm" onclick="forcarResgateLocal('${uf.sigla}', '${uf.id_planilha_prod}')">Resgatar Órfãs</button>
             </div>
@@ -392,35 +434,27 @@
       });
     }
 
-    // 🌟 ENGINE DE SOMA DINÂMICA: Extrai os totais reais somando a matriz de bipes em RAM
     function calcularKPIsDinâmicos(listaUfs) {
-      let somaOrfas = 0;
-      let somaFaltantes = 0;
-      let somaCriticos = 0;
-
+      let somaOrfas = 0; let somaFaltantes = 0; let somaCriticos = 0;
       listaUfs.forEach(uf => {
         somaOrfas += parseInt(uf.orfas) || 0;
         somaFaltantes += parseInt(uf.faltantes) || 0;
         somaCriticos += parseInt(uf.criticos) || 0;
       });
-
       document.getElementById("kpi-total-sheets").innerText = listaUfs.length;
       document.getElementById("kpi-total-resgatadas").innerText = somaOrfas;
       document.getElementById("kpi-total-faltantes").innerText = somaFaltantes;
       document.getElementById("kpi-total-criticos").innerText = somaCriticos;
     }
 
-    // 🚀 INJETE ESTA NOVA VERSÃO DA FUNÇÃO PARA CONTROLAR OS COMPONENTES VISUAIS
     function forcarResgateLocal(sigla, idPlanilha) {
       if (confirm(`⚠️ ATENÇÃO: Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?\n\nIsso injetará os bipes na Master DETALHADO e excluirá as abas locais residuais.`)) {
         
-        // Captura os elementos do modal injetado
         const modal = document.getElementById("modal-resgate");
         const barra = document.getElementById("barra-progresso");
         const terminal = document.getElementById("terminal-logs");
         const btnFechar = document.getElementById("btn-fechar-modal");
         
-        // Abre e reseta o painel visual
         document.getElementById("modal-titulo").innerText = `Operação de Contingência: ${sigla}`;
         modal.style.display = "flex";
         barra.style.width = "10%";
@@ -433,12 +467,11 @@
           barra.style.width = "35%";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Abrindo arquivo regional via ID do Drive...<br>`;
         }, 600);
-    
+
         setTimeout(() => {
           barra.style.width = "60%";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Invocando função real executarResgateEExpurgoAbasOrfas...<br>`;
           
-          // Dispara a requisição HTTP GET para a sua Web App ativa no Google
           fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
             .then(response => response.json())
             .then(res => {
@@ -452,7 +485,7 @@
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> ${res.error}<br>`;
               }
               btnFechar.style.display = "block";
-              carregarDadosGlobais(); // Recarrega os cards e recalcula os KPIs na tela
+              carregarDadosGlobais(); 
             })
             .catch(err => {
               barra.style.width = "100%";
@@ -464,13 +497,8 @@
       }
     }
 
-
-
-    // Inicialização síncrona
-   // window.onload = carregarDadosGlobais;
-        // 🎯 INJEÇÃO CIRÚRGICA: Carrega os dados de forma silenciosa na abertura inicial, deixando o modal de logs apenas para o clique manual do botão
+    // Primeira carga silenciosa na abertura da página para renderização limpa
     window.onload = function() {
-      // Faz o fetch em silêncio apenas para desenhar os cards da primeira vez
       fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
         .then(res => res.json())
         .then(dados => {
@@ -480,8 +508,6 @@
           }
         }).catch(err => console.error("Primeira carga falhou:", err));
     };
-
   </script>
 </body>
 </html>
-
