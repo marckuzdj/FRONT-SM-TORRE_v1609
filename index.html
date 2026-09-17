@@ -498,16 +498,23 @@
     }
 
     // Primeira carga silenciosa na abertura da página para renderização limpa
+    // 🎯 INJEÇÃO CIRÚRGICA: Garante que os KPIs do topo calculem AUTOMATICAMENTE no primeiro carregamento da página!
     window.onload = function() {
+      // Faz o fetch em background de forma silenciosa para preencher o ecossistema
       fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
         .then(res => res.json())
         .then(dados => {
-          if(dados.success) {
+          if (dados.success) {
             renderizarCards(dados.data);
+            
+            // 🚀 O GATILHO FALTANTE: Dispara a somatória dos KPIs na RAM logo após desenhar os cards!
             calcularKPIsDinâmicos(dados.data);
           }
-        }).catch(err => console.error("Primeira carga falhou:", err));
+        })
+        .catch(err => console.error("🚨 Falha crítica no carregamento de KPIs iniciais:", err));
     };
+
+    
   </script>
 </body>
 </html>
