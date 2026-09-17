@@ -222,7 +222,7 @@
 
   <div class="dashboard-container">
     <header>
-      <h1><span>SmartCargas</span> - ECOSYSTEM DIAGNOSTIC PANEL</h1>
+      <h1><span>SMARTCARGAS</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
       <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
     </header>
 
@@ -253,7 +253,7 @@
   </div>
 
   <script>
-    // 🌟 LINK WEB APP: Certifique-se de usar a URL de publicação da sua planilha de controle
+    // 🌟 INJEÇÃO: Substitua pelo link publicado da sua Web App de Controle local
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
 
     function carregarDadosGlobais() {
@@ -275,35 +275,6 @@
         });
     }
 
-    // 🌟 FUNÇÃO DE FORMATAÇÃO DE DATA E HORA [dd/MM/yyyy HH:mm:ss]
-    function formatarDataBR(dataString) {
-      if (!dataString || dataString === "Sem registro" || dataString === "ERRO DE CONEXÃO") {
-        return dataString;
-      }
-      
-      try {
-        // Tenta converter o texto bruto recebido em um objeto Date do JS
-        const dataObj = new Date(dataString);
-        
-        // Se a conversão falhar (NaN), retorna o texto original recebido como fallback seguro
-        if (isNaN(dataObj.getTime())) {
-          return dataString;
-        }
-
-        const dia = String(dataObj.getDate()).padStart(2, '0');
-        const mes = String(dataObj.getMonth() + 1).padStart(2, '0'); // Meses começam em 0 no JS
-        const ano = dataObj.getFullYear();
-        
-        const hora = String(dataObj.getHours()).padStart(2, '0');
-        const minuto = String(dataObj.getMinutes()).padStart(2, '0');
-        const segundo = String(dataObj.getSeconds()).padStart(2, '0');
-
-        return `${dia}/${mes}/${ano} ${hora}:${minuto}:${segundo}`;
-      } catch (e) {
-        return dataString; // Fallback se houver erro interno de string
-      }
-    }
-
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
@@ -314,11 +285,9 @@
       }
 
       listaUfs.forEach(uf => {
+        // Árvore de decisão visual Nu-Style White Mode
         const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         
-        // 🎯 INJEÇÃO DO FORMATADOR: Trata a string temporal de atualização antes de exibir no card
-        const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
-
         const cardHtml = `
           <div class="uf-card">
             <div class="uf-header">
@@ -342,7 +311,7 @@
               </div>
               <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem;">
                 <span>Atualizado em:</span>
-                <span style="font-weight: 500; color: var(--text-muted);">${dataFormatadaPronta}</span>
+                <span>${uf.atualizado_em}</span>
               </div>
             </div>
             
@@ -355,6 +324,7 @@
       });
     }
 
+    // 🌟 ENGINE DE SOMA DINÂMICA: Extrai os totais reais somando a matriz de bipes em RAM
     function calcularKPIsDinâmicos(listaUfs) {
       let somaOrfas = 0;
       let somaFaltantes = 0;
@@ -374,17 +344,20 @@
 
     function forcarResgateLocal(sigla, idPlanilha) {
       if(confirm(`⚠️ Deseja disparar a contingência sênior em lote para resgatar bipes órfãos de ${sigla} agora?`)) {
+        const grid = document.getElementById("grid-estados-uf");
         fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
-          .then(response => response.json())
+          .then(res => response.json())
           .then(res => {
             alert(res.message || "Comando enviado!");
-            carregarDadosGlobais(); 
+            carregarDadosGlobais(); // Força a re-renderização da SPA
           })
           .catch(err => alert("Erro ao despachar comando: " + err));
       }
     }
 
+    // Inicialização síncrona
     window.onload = carregarDadosGlobais;
   </script>
 </body>
 </html>
+
