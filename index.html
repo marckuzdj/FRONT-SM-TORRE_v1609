@@ -476,20 +476,36 @@
           barra.style.width = "60%";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Invocando função real executarResgateEExpurgoAbasOrfas...<br>`;
           
+          // 🎯 PROCESSO DO FETCH DENTRO DA FUNÇÃO forcarResgateLocal
           fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
             .then(response => response.json())
             .then(res => {
               if (res.success) {
                 barra.style.width = "100%";
+                barra.style.background = "var(--status-green)";
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> ${res.message}<br>`;
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Sincronização concluída. Painel local atualizado em lote.`;
+                
+                // 🚀 CORREÇÃO CIRÚRGICA: Mostra o botão de fechar e deixa o usuário decidir quando sair ou fecha após o tempo,
+                // sem disparar o carregarDadosGlobais() para não dar colisão de display!
+                btnFechar.style.display = "block";
+                
+                // Puxa os dados atualizados em segundo plano de forma silenciosa para atualizar os números por trás
+                fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+                  .then(r => r.json())
+                  .then(dados => {
+                    if(dados.success) {
+                      renderizarCards(dados.data);
+                      calcularKPIDinamicos(dados.data);
+                    }
+                  });
+
               } else {
                 barra.style.width = "100%";
                 barra.style.background = "var(--status-red)";
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> ${res.error}<br>`;
+                btnFechar.style.display = "block";
               }
-              btnFechar.style.display = "block";
-              carregarDadosGlobais(); 
             })
             .catch(err => {
               barra.style.width = "100%";
