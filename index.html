@@ -378,20 +378,31 @@
 
     
   <script>
-    // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
 
-    // 🌟 VARIÁVEIS DE CONTROLE DE ESCOPO GLOBAL NA RAM
+    // =========================================================================
+    // 💾 CACHE DO ECOSSISTEMA & DICIONÁRIO GEOGRÁFICO (ESCOPO GLOBAL RAM)
+    // =========================================================================
+    // Armazena temporariamente os dados retornados da API para fatiamento sem travar a rede
     let cacheDadosEcosistema = [];
 
     // Mapeamento geográfico oficial dos estados brasileiros por sigla UF
     const MAPA_REGIOES_BR = {
       'SP': 'SUDESTE', 'RJ': 'SUDESTE', 'MG': 'SUDESTE', 'ES': 'SUDESTE',
       'PR': 'SUL', 'SC': 'SUL', 'RS': 'SUL',
-      'BA': 'NORDESTE', 'PE': 'NORDESTE', 'CE': 'NORDESTE', 'MA': 'NORDESTE', 'PB': 'NORDESTE', 'RN': 'NORDESTE', 'AL': 'NORDESTE', 'SE': 'NORDESTE', 'PI': 'NORDESTE',
-      'MT': 'CENTRO-OESTE', 'MS': 'CENTRO-OESTE', 'GO': 'CENTRO-OESTE', 'DF': 'CENTRO-OESTE',
-      'AM': 'NORTE', 'PA': 'NORTE', 'RO': 'NORTE', 'RR': 'NORTE', 'AC': 'NORTE', 'TO': 'NORTE', 'AP': 'NORTE'
+      'BA': 'NORDESTE', 'PE': 'NORDESTE', 'CE': 'NORDESTE', 'MA': 'NORDESTE', 
+      'PB': 'NORDESTE', 'RN': 'NORDESTE', 'AL': 'NORDESTE', 'SE': 'NORDESTE', 
+      'PI': 'NORDESTE',
+      'MT': 'CENTRO-OESTE', 'MS': 'CENTRO-OESTE', 'GO': 'CENTRO-OESTE', 
+      'DF': 'CENTRO-OESTE',
+      'AM': 'NORTE', 'PA': 'NORTE', 'RO': 'NORTE', 'RR': 'NORTE', 
+      'AC': 'NORTE', 'TO': 'NORTE', 'AP': 'NORTE'
     };
+    // =========================================================================
+
+    
+    // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
+
 
     function carregarDadosGlobais() {
       const grid = document.getElementById("grid-estados-uf");
@@ -613,49 +624,64 @@
         const modal = document.getElementById("modal-resgate");
         const barra = document.getElementById("barra-progresso");
         const terminal = document.getElementById("terminal-logs");
-        const btnFechar = document.getElementById("btn-fechar-modal");
         
         document.getElementById("modal-titulo").innerText = `Operação de Contingência: ${sigla}`;
         modal.style.display = "flex";
         barra.style.width = "10%";
         barra.style.background = "var(--purple-neon)";
-      //  btnFechar.style.display = "none";
         
         terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Estabelecendo canal com a Planilha de Controle...<br>`;
         
         setTimeout(() => {
           barra.style.width = "35%";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Abrindo arquivo regional via ID do Drive...<br>`;
+          terminal.scrollTop = terminal.scrollHeight;
         }, 600);
 
         setTimeout(() => {
           barra.style.width = "60%";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Invocando função real executarResgateEExpurgoAbasOrfas...<br>`;
+          terminal.scrollTop = terminal.scrollHeight;
           
           fetch(`${WEB_APP_URL}?action=forcarResgateUf&id_planilha=${idPlanilha}`)
             .then(response => response.json())
             .then(res => {
               if (res.success) {
                 barra.style.width = "100%";
+                barra.style.background = "var(--status-green)";
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> ${res.message}<br>`;
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Sincronização concluída. Painel local atualizado em lote.`;
+                terminal.scrollTop = terminal.scrollHeight;
+
+                // 🚀 ATUALIZAÇÃO EM BACKGROUND SILENCIOSA (SEM CONCORRÊNCIA DE MODAL!)
+                // Puxa o espelho do banco atualizado sem reabrir a caixa de logs por cima
+                fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+                  .then(r => r.json())
+                  .then(dados => {
+                    if (dados.success) {
+                      cacheDadosEcosistema = dados.data; // Atualiza o cache global da RAM
+                      renderizarCards(dados.data);       // Redesenha os cards com o estado zerado
+                      calcularKPIDinamicos(dados.data);  // Recalcula as caixas de somas do topo
+                    }
+                  });
+
               } else {
                 barra.style.width = "100%";
                 barra.style.background = "var(--status-red)";
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> ${res.error}<br>`;
+                terminal.scrollTop = terminal.scrollHeight;
               }
-             // btnFechar.style.display = "block";
-              carregarDadosGlobais(); 
             })
             .catch(err => {
               barra.style.width = "100%";
               barra.style.background = "var(--status-red)";
               terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Falha crítica na rede API: ${err}<br>`;
-             // btnFechar.style.display = "block";
+              terminal.scrollTop = terminal.scrollHeight;
             });
         }, 1400);
       }
     }
+
     
   </script>
 </body>
