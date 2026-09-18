@@ -538,6 +538,7 @@
               }
 
               // 🎯 CASO 2: SINAL VERDE TOTAL! OS DADOS JÁ EXISTEM OU O ROBÔ TERMINOU
+              // SE JÁ TERMINOU OU JÁ TINHA DADOS SALVOS:
               sistemaEstabilizadoComSucesso = true; // Trava o gatilho anti-loop
               barra.style.width = "100%";
               barra.style.background = "var(--status-green)";
@@ -547,11 +548,10 @@
               renderizarCards(dados.data);
               calcularKPIDinamicos(dados.data);
               
-              // Fecha o painel de progresso de forma limpa após 1 segundo
+              // 🎯 CORREÇÃO CIRÚRGICA: Aponta explicitamente para o ID correto 'modal-resgate' para ocultar a tela
               setTimeout(() => { 
-                modal.style.display = "none"; 
+                document.getElementById("modal-resgate").style.display = "none"; 
               }, 1200);
-
             } else {
               barra.style.width = "100%"; 
               barra.style.background = "var(--status-red)";
