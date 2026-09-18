@@ -379,6 +379,19 @@
     </div>
   </div>
 
+    <!-- 🚨 INJETE ESTE BLOCO LOGO ACIMA DA SUA TAG <script> EXISTENTE -->
+<div class="modal-overlay" id="modal-logistica-detalhe">
+  <div class="modal-box" style="width: 650px;">
+    <h3 id="modal-logistica-titulo" style="color: var(--purple-neon); margin-bottom: 1rem;">Listagem de Romaneios</h3>
+    <div class="terminal-box" id="modal-logistica-conteudo" style="background: #F4F4F6; color: var(--text-main); height: 300px; border: 1px solid rgba(0,0,0,0.05); padding: 1.25rem; overflow-y: auto;">
+      <!-- Os romaneios entrarão aqui em tempo real -->
+    </div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+      <button class="btn-global" onclick="document.getElementById('modal-logistica-detalhe').style.display='none'">FECHAR LISTA</button>
+    </div>
+  </div>
+</div>
+
     
   <script>
 
@@ -599,13 +612,29 @@
       } catch (e) { return dataString; }
     }
 
+    // 🚀 INTERFACE ANALÍTICA: Calcula porcentagens base zero e monta as tabelas com links interativos
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
       
-      listaUfs.forEach(uf => {
+      listaUfs.forEach((uf, index) => {
         const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
+        
+        // Se o backend ainda não tiver dados na coluna J, assume baldes vazios para não quebrar a página
+        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
+        
+        // 📊 Equações Matemáticas em RAM: Operação do DIA
+        const totalDia = da.dia.concluidos.length + da.dia.parciais.length + da.dia.pendentes.length;
+        const pConcluidosDia = totalDia > 0 ? Math.round((da.dia.concluidos.length / totalDia) * 100) : 0;
+        const pParciaisDia   = totalDia > 0 ? Math.round((da.dia.parciais.length / totalDia) * 100) : 0;
+        const pPendentesDia  = totalDia > 0 ? Math.round((da.dia.pendentes.length / totalDia) * 100) : 0;
+
+        // 📊 Equações Matemáticas em RAM: Operação do BACKLOG
+        const totalBacklog = da.backlog.concluidos.length + da.backlog.parciais.length + da.backlog.pendentes.length;
+        const pConcluidosBacklog = totalBacklog > 0 ? Math.round((da.backlog.concluidos.length / totalBacklog) * 100) : 0;
+        const pParciaisBacklog   = totalBacklog > 0 ? Math.round((da.backlog.parciais.length / totalBacklog) * 100) : 0;
+        const pPendentesBacklog  = totalBacklog > 0 ? Math.round((da.backlog.pendentes.length / totalBacklog) * 100) : 0;
 
         const cardHtml = `
           <div class="uf-card">
@@ -613,15 +642,36 @@
               <div class="uf-title">${uf.nome_estado} (${uf.sigla})</div>
               <span class="badge-status ${corClasse}"></span>
             </div>
+            
             <a href="https://google.com{uf.id_planilha_prod}" target="_blank" class="sheet-link">🔗 Planilha Produção</a>
-            <div class="diagnostic-box">
+            
+            <!-- Bloco 1: Romaneios / Backlog -->
+            <div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>
+              <div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'backlog', 'concluidos'); return false;">${pConcluidosBacklog}% (${da.backlog.concluidos.length})</a></div>
+              <div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'backlog', 'parciais'); return false;" style="color:#F57C00;">${pParciaisBacklog}% (${da.backlog.parciais.length})</a></div>
+              <div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'backlog', 'pendentes'); return false;" style="color:var(--status-red);">${pPendentesBacklog}% (${da.backlog.pendentes.length})</a></div>
+            </div>
+
+            <!-- Bloco 2: Romaneios / Dia -->
+            <div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>
+              <div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'dia', 'concluidos'); return false;">${pConcluidosDia}% (${da.dia.concluidos.length})</a></div>
+              <div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'dia', 'parciais'); return false;" style="color:#F57C00;">${pParciaisDia}% (${da.dia.parciais.length})</a></div>
+              <div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'dia', 'pendentes'); return false;" style="color:var(--status-red);">${pPendentesDia}% (${da.dia.pendentes.length})</a></div>
+            </div>
+
+            <!-- Bloco 3: Estrutura Física -->
+            <div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>
               <div class="diagnostic-item"><span>Abas Ativas:</span><span>${uf.abas_existentes}</span></div>
               <div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="${uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">${uf.orfas}</span></div>
               <div class="diagnostic-item"><span>Faltantes Master:</span><span style="${uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">${uf.faltantes}</span></div>
-              <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top: 0.5rem; padding-top: 0.5rem; font-size: 0.75rem;">
-                <span>Atualizado em:</span><span style="font-weight: 500; color: var(--text-muted);">${dataFormatadaPronta}</span>
+              <div class="diagnostic-item" style="border-top:1px dashed #E5E5EA; margin-top:0.4rem; padding-top:0.4rem; font-size:0.75rem;">
+                <span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">${dataFormatadaPronto}</span>
               </div>
             </div>
+            
             <div class="action-row-card">
               <button class="btn-action-sm" onclick="forcarResgateLocal('${uf.sigla}', '${uf.id_planilha_prod}')">Resgatar Órfãs</button>
             </div>
@@ -629,6 +679,40 @@
         `;
         grid.innerHTML += cardHtml;
       });
+    }
+
+    // 🌟 CONTROLADOR REATIVO: Abre a lista detalhada de cargas da categoria clicada
+    function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
+      const ufAlvo = cacheDadosEcosistema[ufIndex];
+      if (!ufAlvo) return;
+
+      const listaCargas = ufAlvo.detalhes_analiticos[tipoPeriodo][categoriaStatus] || [];
+      document.getElementById("modal-logistica-titulo").innerText = `${ufAlvo.nome_estado} (${ufAlvo.sigla}) - ${tipoPeriodo.toUpperCase()} [${categoriaStatus.toUpperCase()}]`;
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+
+      if (listaCargas.length === 0) {
+        caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
+      } else {
+        let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+                            <thead>
+                              <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;">
+                                <th style="padding:0.5rem 0;">📦 ID ROMANEIO</th>
+                                <th style="padding:0.5rem 0;">🚛 TRANSPORTADORA</th>
+                              </tr>
+                            </thead>
+                            <tbody>`;
+        
+        listaCargas.forEach(c => {
+          tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04);">
+                           <td style="padding:0.6rem 0; font-weight:600; font-family:monospace;">${c.romaneio}</td>
+                           <td style="padding:0.6rem 0; color:#333;">${c.transportadora}</td>
+                         </tr>`;
+        });
+        
+        tabelaHtml += `</tbody></table>`;
+        caixaConteudo.innerHTML = tabelaHtml;
+      }
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
 
     function calcularKPIsDinâmicos(listaUfs) {
