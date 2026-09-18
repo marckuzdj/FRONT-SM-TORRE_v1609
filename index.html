@@ -332,6 +332,9 @@
       <button class="btn-filter" onclick="filtrarRegiao('NORDESTE', this)">Nordeste</button>
       <button class="btn-filter" onclick="filtrarRegiao('CENTRO-OESTE', this)">Centro-Oeste</button>
       <button class="btn-filter" onclick="filtrarRegiao('NORTE', this)">Norte</button>
+
+      <!-- 🚨 NOVA PÍLULA: Botão com estilo de Alerta para filtrar UFs Críticas -->
+      <button class="btn-filter" id="btn-filtro-criticos" onclick="filtrarApenasCriticos(this)" style="border: 1px solid rgba(255, 23, 68, 0.2); color: var(--status-red);">⚠️ Apenas Críticos</button>   
     </div>
 
     
@@ -470,6 +473,24 @@
 
       renderizarCards(listaFiltrada);
     }
+
+    // 🚀 ENGINE DE FILTRAGEM TÁTICA: Varre o cache RAM e exibe apenas UFs com Alertas > 0
+    function filtrarApenasCriticos(botaoClicado) {
+      // Limpa o destaque visual de todas as outras pílulas regionais
+      document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+      
+      // Destaca o botão de Alertas Críticos com o visual roxo de seleção
+      botaoClicado.classList.add('active');
+
+      // Filtra de forma relâmpago na memória RAM apenas registros onde criticos > 0
+      const listaCritica = cacheDadosEcosistema.filter(uf => {
+        return parseInt(uf.criticos) > 0;
+      });
+
+      // Redesenha os cards na tela com o novo lote filtrado
+      renderizarCards(listaCritica);
+    }
+    
 
     function resetarBotoesFiltro() {
       document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
