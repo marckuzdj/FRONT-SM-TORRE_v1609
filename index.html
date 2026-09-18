@@ -500,14 +500,13 @@
     // Primeira carga silenciosa na abertura da página para renderização limpa
     // 🎯 INJEÇÃO CIRÚRGICA: Garante que os KPIs do topo calculem AUTOMATICAMENTE no primeiro carregamento da página!
     // 🎯 INJEÇÃO CIRÚRGICA: Transforma a carga inicial silenciosa em um Loader Reativo com Logs!
+    // 🎯 REATIVO: Se o servidor estiver inicializando o banco, ele monitora em loop sem dar timeout!
     window.onload = function() {
-      // Captura os elementos do modal já existentes no HTML
       const modal = document.getElementById("modal-resgate");
       const barra = document.getElementById("barra-progresso");
       const terminal = document.getElementById("terminal-logs");
       const btnFechar = document.getElementById("btn-fechar-modal");
       
-      // Configura o painel para o modo de Carga Inicial Automatizada e abre na tela
       document.getElementById("modal-titulo").innerText = "Sincronizando Sistema Central";
       modal.style.display = "flex";
       barra.style.width = "20%";
@@ -515,38 +514,50 @@
       btnFechar.style.display = "none";
       
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
-      terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[AGUARDE]</span> Se o banco estiver vazio, o Auto-Gatilho de Emergência atualizará as 54 UFs na hora...<br>`;
 
-      // Faz o fetch transacional para a API do Google Sheets
-      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-        .then(res => res.json())
-        .then(dados => {
-          if (dados.success) {
-            barra.style.width = "100%";
-            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
-            
-            // Renderiza as informações físicas nas tabelas e cards
-            renderizarCards(dados.data);
-            calcularKPIDinamicos(dados.data);
-            
-            // Fecha o painel de progresso de forma suave após 1 segundo
-            setTimeout(() => {
-              modal.style.display = "none";
-            }, 1000);
-          } else {
-            barra.style.width = "100%";
-            barra.style.background = "var(--status-red)";
-            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
-            btnFechar.style.display = "block";
-          }
-        })
-        .catch(err => {
-          barra.style.width = "100%";
-          barra.style.background = "var(--status-red)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[FALHA]</span> Erro de rede ou timeout: ${err}<br>`;
-          btnFechar.style.display = "block";
-        });
+      function dispararAuditoriaFrenetica() {
+        fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+          .then(res => res.json())
+          .then(dados => {
+            if (dados.success) {
+              
+              // 🔍 SE O BACKEND AVISAR QUE ESTÁ RE-POPOVANDO OS DADOS:
+              if (dados.initializing) {
+                barra.style.width = "65%";
+                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[PROCESSANDO]</span> Robô consolidador ativo na Master. Escrevendo linhas de E até I...<br>`;
+                // Tenta novamente após 5 segundos de forma segura, sem travar o navegador
+                setTimeout(dispararAuditoriaFrenetica, 5000);
+                return;
+              }
+
+              // SE JÁ TERMINOU OU JÁ TINHA DADOS SALVOS:
+              barra.style.width = "100%";
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
+              
+              renderizarCards(dados.data);
+              calcularKPIDinamicos(dados.data);
+              
+              setTimeout(() => { modal.style.display = "none"; }, 1000);
+
+            } else {
+              barra.style.width = "100%"; barra.style.background = "var(--status-red)";
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
+              btnFechar.style.display = "block";
+            }
+          })
+          .catch(err => {
+            // Se der erro de timeout na primeira tentativa mas os dados estão sendo salvos:
+            barra.style.width = "85%";
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Aguardando persistência de lote no Drive (Polling Ativo)...<br>`;
+            // Re-tenta a leitura em 6 segundos
+            setTimeout(dispararAuditoriaFrenetica, 6000);
+          });
+      }
+
+      // Executa a primeira chamada da esteira
+      dispararAuditoriaFrenetica();
     };
+
     
   </script>
 </body>
