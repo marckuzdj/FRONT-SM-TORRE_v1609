@@ -464,38 +464,86 @@
     }
 
     // Ajuste da carga inicial reativa síncrona conectada ao cache
+    // 🎯 REATIVO, BLINDADO E COM LOGS VISUAIS EM TEMPO REAL NA CARGA INICIAL
     window.onload = function() {
       const modal = document.getElementById("modal-resgate");
       const barra = document.getElementById("barra-progresso");
       const terminal = document.getElementById("terminal-logs");
+      const btnFechar = document.getElementById("btn-fechar-modal");
+      
+      // Abre o modal no modo de sincronismo inicial
+      document.getElementById("modal-titulo").innerText = "Sincronizando Sistema Central";
+      modal.style.display = "flex";
+      barra.style.width = "20%";
+      barra.style.background = "var(--purple-neon)";
+      
+      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
+
       let sistemaEstabilizadoComSucesso = false;
 
       function dispararAuditoriaFrenetica() {
         if (sistemaEstabilizadoComSucesso) return;
+
         fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
           .then(res => res.json())
           .then(dados => {
             if (dados.success) {
+              
+              // 🔍 CASO 1: O BACKEND INFORMA QUE O AUTO-GATILHO ESTÁ POPULANDO AS COLUNAS VAZIAS
               if (dados.initializing) {
-                barra.style.width = "65隔";
+                barra.style.width = "65%";
+                barra.style.background = "var(--purple-neon)";
+                // 🌟 INJEÇÃO DE LOG ATIVA: Alerta o usuário do progresso real na tela!
+                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[PROCESSANDO]</span> Colunas vazias detectadas. Robô de emergência ativo atualizando as 54 UFs no Drive...<br>`;
+                terminal.scrollTop = terminal.scrollHeight; // Auto-scroll do terminal
+                
+                // Tenta ler novamente em 5 segundos até o robô terminar
                 setTimeout(dispararAuditoriaFrenetica, 5000);
                 return;
               }
-              sistemaEstabilizadoComSucesso = true;
-              cacheDadosEcosistema = dados.data; // Carrega RAM
+
+              // 🎯 CASO 2: SINAL VERDE! OS DADOS JÁ OPERAM NA PLANILHA OU O ROBÔ ACABOU DE SALVAR
+              sistemaEstabilizadoComSucesso = true; 
+              barra.style.width = "100%";
+              barra.style.background = "var(--status-green)";
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Painel liberado com sucesso.`;
+              terminal.scrollTop = terminal.scrollHeight;
               
+              // Carrega a malha global RAM e renderiza os cards
+              cacheDadosEcosistema = dados.data;
               renderizarCards(dados.data);
               calcularKPIDinamicos(dados.data);
-              setTimeout(() => { modal.style.display = "none"; }, 1000);
+              
+              // Oculta o modal automaticamente após o sucesso para liberar o dashboard claro
+              setTimeout(() => { 
+                modal.style.display = "none"; 
+              }, 1200);
+
+            } else {
+              barra.style.width = "100%"; 
+              barra.style.background = "var(--status-red)";
+              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
             }
           })
           .catch(err => {
             if (sistemaEstabilizadoComSucesso) return;
+
+            // CASO O GOOGLE DÊ TIMEOUT NA PRIMEIRA REQUISIÇÃO ENQUANTO O ROBÔ ESTÁ SALVANDO NAS CÉLULAS
+            barra.style.width = "45%";
+            barra.style.background = "var(--purple-neon)";
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Gravando lote de metadados no Drive. Aguardando persistência celular (Polling Ativo)...<br>`;
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Continua tentando ler a API a cada 6 segundos de forma resiliente
             setTimeout(dispararAuditoriaFrenetica, 6000);
           });
       }
+
+      // Dispara a esteira automática de carregamento
       dispararAuditoriaFrenetica();
     };
+
 
 
     // 🎯 FORMATADOR DE DATA PREMIUM BRASILEIRO (dd/MM/yyyy HH:mm:ss)
