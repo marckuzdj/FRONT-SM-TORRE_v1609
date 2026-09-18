@@ -439,7 +439,7 @@
           resetarBotoesFiltro();
           renderizarCards(cacheDadosEcosistema);
           
-          // 🎯 INJEÇÃO CIRÚRGICA: Corrigido o nome exato da função (i minúsculo)
+          // 🎯 CORREÇÃO CIRÚRGICA: Alinhado para o nome real com 'D' maiúsculo
           calcularKPIDinamicos(cacheDadosEcosistema);
           
           setTimeout(() => { modal.style.display = "none"; }, 1000);
@@ -527,6 +527,8 @@
               // Carrega a malha global RAM e renderiza os cards
               cacheDadosEcosistema = dados.data;
               renderizarCards(dados.data);
+              
+              // 🎯 CORREÇÃO CIRÚRGICA: Alinhado para o nome real com 'D' maiúsculo
               calcularKPIDinamicos(dados.data);
               
               // Oculta o modal automaticamente após o sucesso para liberar o dashboard claro
@@ -683,6 +685,26 @@
             });
         }, 1400);
       }
+    }
+
+        // 🎯 ASSINATURA DA ENGINE DE SOMA (VÍNCULO COM O D MAIÚSCULO)
+    function calcularKPIDinamicos(listaUfs) {
+      let somaOrfas = 0;
+      let somaFaltantes = 0;
+      let somaCriticos = 0;
+
+      listaUfs.forEach(uf => {
+        // Puxa as propriedades exatas mapeadas pelo JSON do doGet
+        somaOrfas += parseInt(uf.orfas) || 0;
+        somaFaltantes += parseInt(uf.faltantes) || 0;
+        somaCriticos += parseInt(uf.criticos) || 0;
+      });
+
+      // Injeta fisicamente os totais acumulados nas caixas de vidro do topo
+      document.getElementById("kpi-total-sheets").innerText = listaUfs.length;
+      document.getElementById("kpi-total-resgatadas").innerText = somaOrfas;
+      document.getElementById("kpi-total-faltantes").innerText = somaFaltantes;
+      document.getElementById("kpi-total-criticos").innerText = somaCriticos;
     }
 
     
