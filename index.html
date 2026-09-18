@@ -381,7 +381,7 @@
 
     <!-- 🚨 INJETE ESTE BLOCO LOGO ACIMA DA SUA TAG <script> EXISTENTE -->
 <div class="modal-overlay" id="modal-logistica-detalhe">
-  <div class="modal-box" style="width: 650px;">
+  <div class="modal-box" style="width: 1050px; max-width: 95vw;">
     <h3 id="modal-logistica-titulo" style="color: var(--purple-neon); margin-bottom: 1rem;">Listagem de Romaneios</h3>
     <div class="terminal-box" id="modal-logistica-conteudo" style="background: #F4F4F6; color: var(--text-main); height: 300px; border: 1px solid rgba(0,0,0,0.05); padding: 1.25rem; overflow-y: auto;">
       <!-- Os romaneios entrarão aqui em tempo real -->
@@ -681,7 +681,7 @@
       });
     }
 
-    // 🌟 CONTROLADOR REATIVO: Abre a lista detalhada de cargas da categoria clicada
+    // 🌟 CONTROLADOR REATIVO EXPANDIDO: Abre a lista forense com as 6 colunas logísticas em RAM
     function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
       const ufAlvo = cacheDadosEcosistema[ufIndex];
       if (!ufAlvo) return;
@@ -693,19 +693,33 @@
       if (listaCargas.length === 0) {
         caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
       } else {
-        let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:left;">
+        let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
                             <thead>
                               <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;">
-                                <th style="padding:0.5rem 0;">📦 ID ROMANEIO</th>
-                                <th style="padding:0.5rem 0;">🚛 TRANSPORTADORA</th>
+                                <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
+                                <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
+                                <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
+                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA</th>
+                                <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
+                                <th style="padding:0.6rem 0.4rem;">⚡ DISPATCH</th>
                               </tr>
                             </thead>
                             <tbody>`;
         
         listaCargas.forEach(c => {
-          tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04);">
-                           <td style="padding:0.6rem 0; font-weight:600; font-family:monospace;">${c.romaneio}</td>
-                           <td style="padding:0.6rem 0; color:#333;">${c.transportadora}</td>
+          // Trata strings longas de intercorrência com reticências para manter a harmonia visual
+          let textoOcorrencia = c.intercorrencia || "Sem ocorrências";
+          if (textoOcorrencia.length > 35) {
+            textoOcorrencia = `<span title="${textoOcorrencia}">${textoOcorrencia.substring(0, 32)}...</span>`;
+          }
+
+          tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;">
+                           <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
+                           <td style="padding:0.6rem 0.4rem; color:#333;">${c.transportadora || "Não Informada"}</td>
+                           <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
+                           <td style="padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;">${textoOcorrencia}</td>
+                           <td style="padding:0.6rem 0.4rem; color:#111; font-size:0.78rem;">${c.dt_import || "Sem registro"}</td>
+                           <td style="padding:0.6rem 0.4rem; color:#00C853; font-weight:600; font-size:0.78rem;">${c.dispatch || "Aguardando"}</td>
                          </tr>`;
         });
         
@@ -714,6 +728,7 @@
       }
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
+
 
     function calcularKPIsDinâmicos(listaUfs) {
       let somaOrfas = 0; let somaFaltantes = 0; let somaCriticos = 0;
