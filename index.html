@@ -431,16 +431,19 @@
           // 📥 Aloca o array retornado no cache global da RAM do navegador
           cacheDadosEcosistema = dados.data;
           
+          // 🎯 ENCONTRE ESTE TRECHO DENTRO DE carregarDadosGlobais():
           barra.style.width = "100%";
           barra.style.background = "var(--status-green)";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM.<br>`;
           
-          // Renderiza a totalidade e reseta o botão ativo para "Todos"
           resetarBotoesFiltro();
           renderizarCards(cacheDadosEcosistema);
+          
+          // 🎯 INJEÇÃO CIRÚRGICA: Corrigido o nome exato da função (i minúsculo)
           calcularKPIDinamicos(cacheDadosEcosistema);
           
           setTimeout(() => { modal.style.display = "none"; }, 1000);
+
         })
         .catch(err => {
           barra.style.width = "100%"; barra.style.background = "var(--status-red)";
