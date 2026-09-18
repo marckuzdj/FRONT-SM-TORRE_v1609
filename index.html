@@ -316,18 +316,22 @@
   </div>
 
   <!-- CONTAINER DO MODAL DIALÓGICO DE RESGATE -->
+  <!-- 🎯 SUBSTITUA APENAS O RODAPÉ DE BOTÃO DENTRO DA SUA DIV modal-box -->
   <div class="modal-overlay" id="modal-resgate">
     <div class="modal-box">
-      <h3 id="modal-titulo">Processando Resgate Tático...</h3>
+      <h3 id="modal-titulo">Processando Operação...</h3>
       <div class="progress-wrapper">
         <div class="progress-bar" id="barra-progresso"></div>
       </div>
       <div class="terminal-box" id="terminal-logs"></div>
+      
+      <!-- 🌟 O NOVO BOTÃO FIXO "FECHAR" COM CLIQUE DIRETO VIA JAVASCRIPT -->
       <div style="display: flex; justify-content: flex-end;">
-        <button class="btn-global" id="btn-fechar-modal" style="display: none;" onclick="document.getElementById('modal-resgate').style.display='none'">Fechar Painel</button>
+        <button class="btn-global" id="btn-fechar-modal" onclick="document.getElementById('modal-resgate').style.display='none'">FECHAR</button>
       </div>
     </div>
   </div>
+
     
   <script>
     // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
@@ -344,7 +348,7 @@
       modal.style.display = "flex";
       barra.style.width = "15%";
       barra.style.background = "var(--purple-neon)";
-      btnFechar.style.display = "none";
+    //  btnFechar.style.display = "none";
       
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
       grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
@@ -459,7 +463,7 @@
         modal.style.display = "flex";
         barra.style.width = "10%";
         barra.style.background = "var(--purple-neon)";
-        btnFechar.style.display = "none";
+      //  btnFechar.style.display = "none";
         
         terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Estabelecendo canal com a Planilha de Controle...<br>`;
         
@@ -484,14 +488,14 @@
                 barra.style.background = "var(--status-red)";
                 terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> ${res.error}<br>`;
               }
-              btnFechar.style.display = "block";
+             // btnFechar.style.display = "block";
               carregarDadosGlobais(); 
             })
             .catch(err => {
               barra.style.width = "100%";
               barra.style.background = "var(--status-red)";
               terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Falha crítica na rede API: ${err}<br>`;
-              btnFechar.style.display = "block";
+             // btnFechar.style.display = "block";
             });
         }, 1400);
       }
@@ -512,7 +516,7 @@
       modal.style.display = "flex";
       barra.style.width = "20%";
       barra.style.background = "var(--purple-neon)";
-      btnFechar.style.display = "none";
+    //  btnFechar.style.display = "none";
       
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
 
@@ -556,7 +560,7 @@
               barra.style.width = "100%"; 
               barra.style.background = "var(--status-red)";
               terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
-              btnFechar.style.display = "block";
+            //  btnFechar.style.display = "block";
             }
           })
           .catch(err => {
