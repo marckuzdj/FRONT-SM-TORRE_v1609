@@ -499,21 +499,54 @@
 
     // Primeira carga silenciosa na abertura da página para renderização limpa
     // 🎯 INJEÇÃO CIRÚRGICA: Garante que os KPIs do topo calculem AUTOMATICAMENTE no primeiro carregamento da página!
+    // 🎯 INJEÇÃO CIRÚRGICA: Transforma a carga inicial silenciosa em um Loader Reativo com Logs!
     window.onload = function() {
-      // Faz o fetch em background de forma silenciosa para preencher o ecossistema
+      // Captura os elementos do modal já existentes no HTML
+      const modal = document.getElementById("modal-resgate");
+      const barra = document.getElementById("barra-progresso");
+      const terminal = document.getElementById("terminal-logs");
+      const btnFechar = document.getElementById("btn-fechar-modal");
+      
+      // Configura o painel para o modo de Carga Inicial Automatizada e abre na tela
+      document.getElementById("modal-titulo").innerText = "Sincronizando Sistema Central";
+      modal.style.display = "flex";
+      barra.style.width = "20%";
+      barra.style.background = "var(--purple-neon)";
+      btnFechar.style.display = "none";
+      
+      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
+      terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[AGUARDE]</span> Se o banco estiver vazio, o Auto-Gatilho de Emergência atualizará as 54 UFs na hora...<br>`;
+
+      // Faz o fetch transacional para a API do Google Sheets
       fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
         .then(res => res.json())
         .then(dados => {
           if (dados.success) {
-            renderizarCards(dados.data);
+            barra.style.width = "100%";
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
             
-            // 🚀 O GATILHO FALTANTE: Dispara a somatória dos KPIs na RAM logo após desenhar os cards!
-            calcularKPIsDinâmicos(dados.data);
+            // Renderiza as informações físicas nas tabelas e cards
+            renderizarCards(dados.data);
+            calcularKPIDinamicos(dados.data);
+            
+            // Fecha o painel de progresso de forma suave após 1 segundo
+            setTimeout(() => {
+              modal.style.display = "none";
+            }, 1000);
+          } else {
+            barra.style.width = "100%";
+            barra.style.background = "var(--status-red)";
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
+            btnFechar.style.display = "block";
           }
         })
-        .catch(err => console.error("🚨 Falha crítica no carregamento de KPIs iniciais:", err));
+        .catch(err => {
+          barra.style.width = "100%";
+          barra.style.background = "var(--status-red)";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[FALHA]</span> Erro de rede ou timeout: ${err}<br>`;
+          btnFechar.style.display = "block";
+        });
     };
-
     
   </script>
 </body>
