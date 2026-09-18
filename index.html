@@ -370,12 +370,16 @@
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM com integridade.<br>`;
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Mapeamento concluído! Exibindo cards operacionais na tela.<br>`;
           
+          // ... código anterior do fetch do carregarDadosGlobais ...
           renderizarCards(dados.data);
-          calcularKPIsDinâmicos(dados.data);
+          calcularKPIDinamicos(dados.data);
           
+          // 🎯 INJEÇÃO BRUTA: Força o fechamento no clique manual do botão roxo
           setTimeout(() => {
-            modal.style.display = "none";
+            const painelModalGlobal = document.getElementById("modal-resgate");
+            if (painelModalGlobal) painelModalGlobal.style.display = "none";
           }, 1200);
+
         })
         .catch(err => {
           barra.style.width = "100%";
@@ -548,10 +552,15 @@
               renderizarCards(dados.data);
               calcularKPIDinamicos(dados.data);
               
-              // 🎯 CORREÇÃO CIRÚRGICA: Aponta explicitamente para o ID correto 'modal-resgate' para ocultar a tela
+              // 🎯 INJEÇÃO BRUTA: Garante a remoção visual da tela limpando o display de forma direta
               setTimeout(() => { 
-                document.getElementById("modal-resgate").style.display = "none"; 
+                const painelModal = document.getElementById("modal-resgate");
+                if (painelModal) {
+                  painelModal.style.display = "none";
+                  console.log("🧼 [SPA] Modal de inicialização removido com sucesso.");
+                }
               }, 1200);
+
             } else {
               barra.style.width = "100%"; 
               barra.style.background = "var(--status-red)";
