@@ -280,6 +280,39 @@
     
     .terminal-box .log-err { color: #FF1744; }
     .terminal-box .log-info { color: #FFD600; }
+
+    .filter-row {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-filter {
+      background: #E5E5EA;
+      color: var(--text-main);
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-filter:hover {
+      background: var(--purple-dim);
+      color: var(--purple-neon);
+    }
+
+    .btn-filter.active {
+      background: var(--purple-neon);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(138, 5, 190, 0.2);
+    }
+
+
+    
   </style>
 </head>
 
@@ -291,6 +324,17 @@
       <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
     </header>
 
+    <!-- 🌟 INJEÇÃO DA BARRA DE FILTROS REGIONAIS BRASILEIRAS -->
+    <div class="filter-row">
+      <button class="btn-filter active" onclick="filtrarRegiao('TODOS', this)">Todos</button>
+      <button class="btn-filter" onclick="filtrarRegiao('SUDESTE', this)">Sudeste</button>
+      <button class="btn-filter" onclick="filtrarRegiao('SUL', this)">Sul</button>
+      <button class="btn-filter" onclick="filtrarRegiao('NORDESTE', this)">Nordeste</button>
+      <button class="btn-filter" onclick="filtrarRegiao('CENTRO-OESTE', this)">Centro-Oeste</button>
+      <button class="btn-filter" onclick="filtrarRegiao('NORTE', this)">Norte</button>
+    </div>
+
+    
     <!-- KPI ROW METRICS -->
     <div class="kpi-row">
       <div class="kpi-card">
@@ -337,58 +381,122 @@
     // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec";
 
+    // 🌟 VARIÁVEIS DE CONTROLE DE ESCOPO GLOBAL NA RAM
+    let cacheDadosEcosistema = [];
+
+    // Mapeamento geográfico oficial dos estados brasileiros por sigla UF
+    const MAPA_REGIOES_BR = {
+      'SP': 'SUDESTE', 'RJ': 'SUDESTE', 'MG': 'SUDESTE', 'ES': 'SUDESTE',
+      'PR': 'SUL', 'SC': 'SUL', 'RS': 'SUL',
+      'BA': 'NORDESTE', 'PE': 'NORDESTE', 'CE': 'NORDESTE', 'MA': 'NORDESTE', 'PB': 'NORDESTE', 'RN': 'NORDESTE', 'AL': 'NORDESTE', 'SE': 'NORDESTE', 'PI': 'NORDESTE',
+      'MT': 'CENTRO-OESTE', 'MS': 'CENTRO-OESTE', 'GO': 'CENTRO-OESTE', 'DF': 'CENTRO-OESTE',
+      'AM': 'NORTE', 'PA': 'NORTE', 'RO': 'NORTE', 'RR': 'NORTE', 'AC': 'NORTE', 'TO': 'NORTE', 'AP': 'NORTE'
+    };
+
     function carregarDadosGlobais() {
       const grid = document.getElementById("grid-estados-uf");
       const modal = document.getElementById("modal-resgate");
       const barra = document.getElementById("barra-progresso");
       const terminal = document.getElementById("terminal-logs");
-      const btnFechar = document.getElementById("btn-fechar-modal");
       
       document.getElementById("modal-titulo").innerText = "Auditoria Global do Ecossistema (54 UFs)";
       modal.style.display = "flex";
       barra.style.width = "15%";
       barra.style.background = "var(--purple-neon)";
-    //  btnFechar.style.display = "none";
       
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
       grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
-
-      setTimeout(() => {
-        barra.style.width = "50%";
-        terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Servidor processando caches da Master e lendo registros da METRICAS_UF...<br>`;
-      }, 500);
 
       fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
         .then(response => response.json())
         .then(dados => {
           if(!dados.success) {
-            barra.style.width = "100%";
-            barra.style.background = "var(--status-red)";
+            barra.style.width = "100%"; barra.style.background = "var(--status-red)";
             terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Falha do Servidor: ${dados.error}<br>`;
             grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro no Servidor: ${dados.error}</div>`;
-            btnFechar.style.display = "block";
             return;
           }
           
+          // 📥 Aloca o array retornado no cache global da RAM do navegador
+          cacheDadosEcosistema = dados.data;
+          
           barra.style.width = "100%";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM com integridade.<br>`;
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Mapeamento concluído! Exibindo cards operacionais na tela.<br>`;
+          barra.style.background = "var(--status-green)";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM.<br>`;
           
-          renderizarCards(dados.data);
-          calcularKPIsDinâmicos(dados.data);
+          // Renderiza a totalidade e reseta o botão ativo para "Todos"
+          resetarBotoesFiltro();
+          renderizarCards(cacheDadosEcosistema);
+          calcularKPIDinamicos(cacheDadosEcosistema);
           
-          setTimeout(() => {
-            modal.style.display = "none";
-          }, 1200);
+          setTimeout(() => { modal.style.display = "none"; }, 1000);
         })
         .catch(err => {
-          barra.style.width = "100%";
-          barra.style.background = "var(--status-red)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Queda ou bloqueio de rede API: ${err}<br>`;
-          grid.innerHTML = `<div style='grid-column: 1/-1; text-align: center; color: var(--status-red); padding: 3rem; font-weight: 600;'>Erro na conexão API: ${err}</div>`;
-          btnFechar.style.display = "block";
+          barra.style.width = "100%"; barra.style.background = "var(--status-red)";
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Falha de rede: ${err}<br>`;
         });
     }
+
+    // 🚀 ENGINE DE FILTRAGEM RELÂMPAGO
+    function filtrarRegiao(regiaoAlvo, botaoClicado) {
+      // Altera o estado visual dos botões de filtro
+      document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+      botaoClicado.classList.add('active');
+
+      if (regiaoAlvo === 'TODOS') {
+        renderizarCards(cacheDadosEcosistema);
+        return;
+      }
+
+      // Filtra as UFs na memória RAM baseando-se no dicionário geográfico
+      const listaFiltrada = cacheDadosEcosistema.filter(uf => {
+        const regiaoUf = MAPA_REGIOES_BR[uf.sigla.toUpperCase()] || 'OUTROS';
+        return regiaoUf === regiaoAlvo;
+      });
+
+      renderizarCards(listaFiltrada);
+    }
+
+    function resetarBotoesFiltro() {
+      document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+      const btnTodos = document.querySelector(".filter-row button");
+      if (btnTodos) btnTodos.classList.add('active');
+    }
+
+    // Ajuste da carga inicial reativa síncrona conectada ao cache
+    window.onload = function() {
+      const modal = document.getElementById("modal-resgate");
+      const barra = document.getElementById("barra-progresso");
+      const terminal = document.getElementById("terminal-logs");
+      let sistemaEstabilizadoComSucesso = false;
+
+      function dispararAuditoriaFrenetica() {
+        if (sistemaEstabilizadoComSucesso) return;
+        fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
+          .then(res => res.json())
+          .then(dados => {
+            if (dados.success) {
+              if (dados.initializing) {
+                barra.style.width = "65隔";
+                setTimeout(dispararAuditoriaFrenetica, 5000);
+                return;
+              }
+              sistemaEstabilizadoComSucesso = true;
+              cacheDadosEcosistema = dados.data; // Carrega RAM
+              
+              renderizarCards(dados.data);
+              calcularKPIDinamicos(dados.data);
+              setTimeout(() => { modal.style.display = "none"; }, 1000);
+            }
+          })
+          .catch(err => {
+            if (sistemaEstabilizadoComSucesso) return;
+            setTimeout(dispararAuditoriaFrenetica, 6000);
+          });
+      }
+      dispararAuditoriaFrenetica();
+    };
+
 
     // 🎯 FORMATADOR DE DATA PREMIUM BRASILEIRO (dd/MM/yyyy HH:mm:ss)
     function formatarDataBR(dataString) {
@@ -500,87 +608,6 @@
         }, 1400);
       }
     }
-
-    // Primeira carga silenciosa na abertura da página para renderização limpa
-    // 🎯 INJEÇÃO CIRÚRGICA: Garante que os KPIs do topo calculem AUTOMATICAMENTE no primeiro carregamento da página!
-    // 🎯 INJEÇÃO CIRÚRGICA: Transforma a carga inicial silenciosa em um Loader Reativo com Logs!
-    // 🎯 REATIVO: Se o servidor estiver inicializando o banco, ele monitora em loop sem dar timeout!
-    // 🎯 REATIVO E BLINDADO: Monitora o preenchimento inicial e ABORTA o loop assim que os dados chegam!
-    window.onload = function() {
-      const modal = document.getElementById("modal-resgate");
-      const barra = document.getElementById("barra-progresso");
-      const terminal = document.getElementById("terminal-logs");
-      const btnFechar = document.getElementById("btn-fechar-modal");
-      
-      document.getElementById("modal-titulo").innerText = "Sincronizando Sistema Central";
-      modal.style.display = "flex";
-      barra.style.width = "20%";
-      barra.style.background = "var(--purple-neon)";
-    //  btnFechar.style.display = "none";
-      
-      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
-
-      // Variável de controle para abortar chamadas repetidas após o sucesso
-      let sistemaEstabilizadoComSucesso = false;
-
-      function dispararAuditoriaFrenetica() {
-        // Se o sistema já carregou com sucesso em uma tentativa anterior, aborta o loop na hora!
-        if (sistemaEstabilizadoComSucesso) return;
-
-        fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-          .then(res => res.json())
-          .then(dados => {
-            if (dados.success) {
-              
-              // 🔍 CASO 1: O BACKEND AVISAR QUE AINDA ESTÁ RE-POVOANDO OS DADOS:
-              if (dados.initializing) {
-                barra.style.width = "65%";
-                barra.style.background = "var(--purple-neon)";
-                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[PROCESSANDO]</span> Robô consolidador ativo na Master. Escrevendo linhas de E até I...<br>`;
-                setTimeout(dispararAuditoriaFrenetica, 5000);
-                return;
-              }
-
-              // 🎯 CASO 2: SINAL VERDE TOTAL! OS DADOS JÁ EXISTEM OU O ROBÔ TERMINOU
-              sistemaEstabilizadoComSucesso = true; // Trava o gatilho anti-loop
-              barra.style.width = "100%";
-              barra.style.background = "var(--status-green)";
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Painel liberado.`;
-              
-              renderizarCards(dados.data);
-              calcularKPIDinamicos(dados.data);
-              
-              // Fecha o painel de progresso de forma limpa após 1 segundo
-              setTimeout(() => { 
-                modal.style.display = "none"; 
-              }, 1200);
-
-            } else {
-              barra.style.width = "100%"; 
-              barra.style.background = "var(--status-red)";
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
-            //  btnFechar.style.display = "block";
-            }
-          })
-          .catch(err => {
-            // Se o sistema já deu certo antes, ignora qualquer oscilação de rede atrasada
-            if (sistemaEstabilizadoComSucesso) return;
-
-            barra.style.width = "40%";
-            barra.style.background = "var(--purple-neon)";
-            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Aguardando persistência de lote no Drive...<br>`;
-            
-            // Tenta novamente apenas se o banco continuar zerado
-            setTimeout(dispararAuditoriaFrenetica, 6000);
-          });
-      }
-
-      // Dispara a primeira execução da esteira
-      dispararAuditoriaFrenetica();
-    };
-
-
     
   </script>
 </body>
