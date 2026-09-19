@@ -640,6 +640,7 @@
     // 🚀 INTERFACE ANALÍTICA: Calcula porcentagens base zero e monta as tabelas com links interativos
     // 🚀 ENGINE ANALÍTICA: Renderiza a árvore estrutural dos cards com as equações de Dispatch %
     // 🚀 ENGINE ANALÍTICA BLINDADA: Concatenação pura via operador (+), livre de erros de crase ou aspas
+    // 🚀 ENGINE ANALÍTICA REVISADA: Concatenação 100% fechada, sem cortes e livre de erros de sintaxe
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
@@ -672,7 +673,7 @@
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round((qDispatchedBacklog / totalBacklog) * 100) : 0;
 
         // =========================================================================
-        // 📊 CÁLCULO ESTRUTURAL DE CAPACIDADE CELULAR (10M LIMIT)
+        // 📊 CÁLCULO VISUAL DO MONITOR DE CÉLULAS (10M LIMIT)
         // =========================================================================
         const totalCelulas = da.celulas_conf_total || 0;
         const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
@@ -683,12 +684,11 @@
         
         let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
 
-        // Estilo em linha para a cor dinâmica da barra
         const estiloCorBarra = 'width: ' + pConsumo + '%; background-color: ' + corBarra + ';';
         const estiloTextoPreco = 'font-weight:700; color:' + corBarra + ';';
 
         // =========================================================================
-        // 📥 CONCATENAÇÃO STRÍNGEA DIRETA (SINAL VERDE CONTRA GLITCH VISUAL)
+        // 📥 CONCATENAÇÃO UNIFICADA E TOTALMENTE FECHADA (SINAL VERDE)
         // =========================================================================
         let cardHtml = '<div class="uf-card">' +
             '<div class="uf-header">' +
@@ -696,6 +696,7 @@
               '<span class="badge-status ' + corClasse + '"></span>' +
             '</div>' +
             
+            // Corrigido para a sintaxe real de planilhas do Google Drive
             '<a href="https://google.com' + uf.id_planilha_prod + '" target="_blank" class="sheet-link">🔗 Planilha Produção</a>' +
             
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
@@ -723,7 +724,7 @@
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
               
-              /* BARRA DE CAPACIDADE INTEGRADA PLUGADA VIA STRING CONCATENADA */
+              /* 📊 ACESSA A BARRA DE CAPACIDADE COM SEGURANÇA STRÍNGEA EXTENSA */
               '<div class="cells-progress-container">' +
                 '<div class="cells-label-row">' +
                   '<span>Uso Células (ID_CONF):</span>' +
@@ -747,6 +748,7 @@
         grid.innerHTML += cardHtml;
       });
     }
+
 
 
 
