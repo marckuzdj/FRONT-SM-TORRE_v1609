@@ -311,9 +311,34 @@
       box-shadow: 0 4px 12px rgba(138, 5, 190, 0.2);
     }
 
-
+    .cells-progress-container {
+      margin-top: 0.6rem;
+      font-size: 0.75rem;
+    }
+    .cells-label-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+    .cells-bg-bar {
+      background: #E5E5EA;
+      width: 100%;
+      height: 6px;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .cells-fill-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.4s ease, background-color 0.4s ease;
+    }
     
   </style>
+
+  
 </head>
 
   <body>
@@ -681,20 +706,49 @@ function renderizarCards(listaUfs) {
           <div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'dia', 'parciais'); return false;" style="color:#F57C00;">${pParciaisDia}% (${da.dia.parciais.length})</a></div>
           <div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(${index}, 'dia', 'pendentes'); return false;" style="color:var(--status-red);">${pPendentesDia}% (${da.dia.pendentes.length})</a></div>
           <div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">
-            <span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(${index}, 'dia'); return false;" style="color:#00C853; font-weight:700;">${pDispatchedDia}% (${qDispatchedDia})</a>
+            <span>Dispatch OK:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(${index}, 'dia'); return false;" style="color:#00C853; font-weight:700;">${pDispatchedDia}% (${qDispatchedDia})</a>
           </div>
         </div>
 
-        <!-- Quadrante 3: Estrutura Física -->
-        <div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">
-          <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>
-          <div class="diagnostic-item"><span>Abas Ativas:</span><span>${uf.abas_existentes}</span></div>
-          <div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="${uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">${uf.orfas}</span></div>
-          <div class="diagnostic-item"><span>Faltantes Master:</span><span style="${uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">${uf.faltantes}</span></div>
-          <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.4rem; padding-top:0.4rem; font-size:0.75rem;">
-            <span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">${dataFormatadaPronta}</span>
-          </div>
-        </div>
+            <!-- 🎯 SUBSTITUA APENAS O QUADRANTE 3 DENTRO DO SEU TEMPLATE STRING DA FUNÇÃO renderizarCards -->
+            <!-- Quadrante 3: Estrutura Física -->
+            <div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">
+              <div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>
+              <div class="diagnostic-item"><span>Abas Ativas:</span><span>\${uf.abas_existentes}</span></div>
+              <div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="\({uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : ''}">\){uf.orfas}</span></div>
+              <div class="diagnostic-item"><span>Faltantes Master:</span><span style="\({uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : ''}">\){uf.faltantes}</span></div>
+              
+              <!-- 📊 INTERCEPTADOR DE CAPACIDADE GOOGLE (10M LIMIT) -->
+              \${(() => {
+                const totalCelulas = da.celulas_conf_total || 0;
+                const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
+                
+                // Engenharia de Alerta Cromático
+                let corBarra = 'var(--status-green)';
+                if (pConsumo >= 90) corBarra = 'var(--status-red)';
+                else if (pConsumo >= 70) corBarra = '#F57C00'; // Laranja de Auditoria
+                
+                // Formata número grande com prefixo K ou M legível
+                let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
+
+                return `
+                  <div class="cells-progress-container">
+                    <div class="cells-label-row">
+                      <span>Uso Células (ID_CONF):</span>
+                      <span style="font-weight:700; color:${corBarra};">${textoCelulas} (${pConsumo}%)</span>
+                    </div>
+                    <div class="cells-bg-bar">
+                      <div class="cells-fill-bar" style="width: ${pConsumo}%; background-color: ${corBarra};"></div>
+                    </div>
+                  </div>
+                `;
+              })()}
+
+              <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.5rem; padding-top:0.4rem; font-size:0.75rem;">
+                <span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">\${dataFormatadaPronta}</span>
+              </div>
+            </div>
+
         
         <div class="action-row-card">
           <button class="btn-action-sm" onclick="forcarResgateLocal('${uf.sigla}', '${uf.id_planilha_prod}')">Resgatar Órfãs</button>
