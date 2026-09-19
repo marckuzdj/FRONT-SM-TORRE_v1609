@@ -641,6 +641,7 @@
     // 🚀 ENGINE ANALÍTICA: Renderiza a árvore estrutural dos cards com as equações de Dispatch %
     // 🚀 ENGINE ANALÍTICA BLINDADA: Concatenação pura via operador (+), livre de erros de crase ou aspas
     // 🚀 ENGINE ANALÍTICA REVISADA: Concatenação 100% fechada, sem cortes e livre de erros de sintaxe
+    // 🚀 ENGINE ANALÍTICA SURGICAL: Concatenação pura estável, livre de erros de aspas/crases
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
@@ -649,7 +650,7 @@
         const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
         
-        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] }, celulas_conf_total: 0 };
+        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
         
         // =========================================================================
         // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO DIA
@@ -673,22 +674,7 @@
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round((qDispatchedBacklog / totalBacklog) * 100) : 0;
 
         // =========================================================================
-        // 📊 CÁLCULO VISUAL DO MONITOR DE CÉLULAS (10M LIMIT)
-        // =========================================================================
-        const totalCelulas = da.celulas_conf_total || 0;
-        const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
-        
-        let corBarra = 'var(--status-green)';
-        if (pConsumo >= 90) corBarra = 'var(--status-red)';
-        else if (pConsumo >= 70) corBarra = '#F57C00'; 
-        
-        let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
-
-        const estiloCorBarra = 'width: ' + pConsumo + '%; background-color: ' + corBarra + ';';
-        const estiloTextoPreco = 'font-weight:700; color:' + corBarra + ';';
-
-        // =========================================================================
-        // 📥 CONCATENAÇÃO UNIFICADA E TOTALMENTE FECHADA (SINAL VERDE)
+        // 📥 CONCATENAÇÃO STRÍNGEA SÊNIOR TOTALMENTE FECHADA
         // =========================================================================
         let cardHtml = '<div class="uf-card">' +
             '<div class="uf-header">' +
@@ -696,7 +682,6 @@
               '<span class="badge-status ' + corClasse + '"></span>' +
             '</div>' +
             
-            // Corrigido para a sintaxe real de planilhas do Google Drive
             '<a href="https://google.com' + uf.id_planilha_prod + '" target="_blank" class="sheet-link">🔗 Planilha Produção</a>' +
             
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
@@ -723,32 +708,20 @@
               '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
-              
-              /* 📊 ACESSA A BARRA DE CAPACIDADE COM SEGURANÇA STRÍNGEA EXTENSA */
-              '<div class="cells-progress-container">' +
-                '<div class="cells-label-row">' +
-                  '<span>Uso Células (ID_CONF):</span>' +
-                  '<span style="' + estiloTextoPreco + '">' + textoCelulas + ' (' + pConsumo + '%)</span>' +
-                '</div>' +
-                '<div class="cells-bg-bar">' +
-                  '<div class="cells-fill-bar" style="' + estiloCorBarra + '"></div>' +
-                '</div>' +
-              '</div>' +
-
-              // 🎯 AJUSTE CIRÚRGICO DAS LINHAS 738 A 746: Strings 100% alinhadas e limpas
               '<div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.6rem; padding-top:0.4rem; font-size:0.75rem;">' +
                 '<span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">' + dataFormatadaPronta + '</span>' +
               '</div>' +
-            '</div>' + // Fecha diagnostic-box
+            '</div>' +
+            
             '<div class="action-row-card">' +
               '<button class="btn-action-sm" onclick="forcarResgateLocal(\'' + uf.sigla + '\', \'' + uf.id_planilha_prod + '\')">Resgatar Órfãs</button>' +
-            </div>' + 
-          '</div>'; // Fecha uf-card definitivo
-
+            </div>' +
+          '</div>';
           
         grid.innerHTML += cardHtml;
       });
     }
+
 
 
 
