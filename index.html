@@ -735,15 +735,16 @@
                 '</div>' +
               '</div>' +
 
+              // 🎯 AJUSTE CIRÚRGICO DAS LINHAS 738 A 746: Strings 100% alinhadas e limpas
               '<div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.6rem; padding-top:0.4rem; font-size:0.75rem;">' +
                 '<span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">' + dataFormatadaPronta + '</span>' +
               '</div>' +
-            '</div>' +
-            
+            '</div>' + // Fecha diagnostic-box
             '<div class="action-row-card">' +
               '<button class="btn-action-sm" onclick="forcarResgateLocal(\'' + uf.sigla + '\', \'' + uf.id_planilha_prod + '\')">Resgatar Órfãs</button>' +
-            </div>' +
-          '</div>';
+            </div>' + 
+          '</div>'; // Fecha uf-card definitivo
+
           
         grid.innerHTML += cardHtml;
       });
