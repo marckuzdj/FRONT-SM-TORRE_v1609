@@ -652,9 +652,6 @@
         
         const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
         
-        // =========================================================================
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO DIA
-        // =========================================================================
         const totalDia = da.dia.concluidos.length + da.dia.parciais.length + da.dia.pendentes.length;
         const pConcluidosDia = totalDia > 0 ? Math.round((da.dia.concluidos.length / totalDia) * 100) : 0;
         const pParciaisDia   = totalDia > 0 ? Math.round((da.dia.parciais.length / totalDia) * 100) : 0;
@@ -663,9 +660,6 @@
         const qDispatchedDia = [...da.dia.concluidos, ...da.dia.parciais, ...da.dia.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
         const pDispatchedDia = totalDia > 0 ? Math.round((qDispatchedDia / totalDia) * 100) : 0;
 
-        // =========================================================================
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO BACKLOG
-        // =========================================================================
         const totalBacklog = da.backlog.concluidos.length + da.backlog.parciais.length + da.backlog.pendentes.length;
         const pParciaisBacklog   = totalBacklog > 0 ? Math.round((da.backlog.parciais.length / totalBacklog) * 100) : 0;
         const pPendentesBacklog  = totalBacklog > 0 ? Math.round((da.backlog.pendentes.length / totalBacklog) * 100) : 0;
@@ -673,17 +667,13 @@
         const qDispatchedBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round((qDispatchedBacklog / totalBacklog) * 100) : 0;
 
-        // =========================================================================
-        // 📥 CONCATENAÇÃO STRÍNGEA SÊNIOR TOTALMENTE FECHADA
-        // =========================================================================
+        // 🎯 STRING COMPACTA EM LINHAS LIMPAS PARA MATAR O ERRO DE PARSING
         let cardHtml = '<div class="uf-card">' +
             '<div class="uf-header">' +
               '<div class="uf-title">' + uf.nome_estado + ' (' + uf.sigla + ')</div>' +
               '<span class="badge-status ' + corClasse + '"></span>' +
             '</div>' +
-            
             '<a href="https://google.com' + uf.id_planilha_prod + '" target="_blank" class="sheet-link">🔗 Planilha Produção</a>' +
-            
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
@@ -692,7 +682,6 @@
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
               '</div>' +
             '</div>' +
-
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>' +
               '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
@@ -702,7 +691,6 @@
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
               '</div>' +
             '</div>' +
-
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
@@ -712,7 +700,6 @@
                 '<span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">' + dataFormatadaPronta + '</span>' +
               '</div>' +
             '</div>' +
-            
             '<div class="action-row-card">' +
               '<button class="btn-action-sm" onclick="forcarResgateLocal(\'' + uf.sigla + '\', \'' + uf.id_planilha_prod + '\')">Resgatar Órfãs</button>' +
             </div>' +
@@ -721,6 +708,7 @@
         grid.innerHTML += cardHtml;
       });
     }
+
 
 
 
