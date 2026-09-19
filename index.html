@@ -731,18 +731,18 @@ function renderizarCards(listaUfs) {
                 // Formata número grande com prefixo K ou M legível
                 let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
 
-                return `
-                  <div class="cells-progress-container">
-                    <div class="cells-label-row">
-                      <span>Uso Células (ID_CONF):</span>
-                      <span style="font-weight:700; color:${corBarra};">${textoCelulas} (${pConsumo}%)</span>
-                    </div>
-                    <div class="cells-bg-bar">
-                      <div class="cells-fill-bar" style="width: ${pConsumo}%; background-color: ${corBarra};"></div>
-                    </div>
-                  </div>
-                `;
+                // 🎯 AJUSTE CIRÚRGICO BLINDADO: Retorna o HTML concatenado de forma direta e limpa
+                return '<div class="cells-progress-container">' +
+                         '<div class="cells-label-row">' +
+                           '<span>Uso Células (ID_CONF):</span>' +
+                           '<span style="font-weight:700; color:' + corBarra + ';">' + textoCelulas + ' (' + pConsumo + '%)</span>' +
+                         '</div>' +
+                         '<div class="cells-bg-bar">' +
+                           '<div class="cells-fill-bar" style="width: ' + pConsumo + '%; background-color: ' + corBarra + ';"></div>' +
+                         '</div>' +
+                       '</div>';
               })()}
+
 
               <div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.5rem; padding-top:0.4rem; font-size:0.75rem;">
                 <span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">\${dataFormatadaPronta}</span>
