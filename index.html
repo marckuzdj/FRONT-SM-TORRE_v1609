@@ -335,6 +335,7 @@
       border-radius: 4px;
       transition: width 0.4s ease, background-color 0.4s ease;
     }
+
     
   </style>
 
@@ -642,6 +643,7 @@
     // 🚀 ENGINE ANALÍTICA BLINDADA: Concatenação pura via operador (+), livre de erros de crase ou aspas
     // 🚀 ENGINE ANALÍTICA REVISADA: Concatenação 100% fechada, sem cortes e livre de erros de sintaxe
     // 🚀 ENGINE ANALÍTICA SURGICAL: Concatenação pura estável, livre de erros de aspas/crases
+    // 🚀 ENGINE ANALÍTICA COMPLETA: Inclui fatiamento de Dispatch % e o Monitor de 10M de Células blindado
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
@@ -650,8 +652,11 @@
         const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
         
-        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
+        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] }, celulas_conf_total: 0 };
         
+        // =========================================================================
+        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO DIA
+        // =========================================================================
         const totalDia = da.dia.concluidos.length + da.dia.parciais.length + da.dia.pendentes.length;
         const pConcluidosDia = totalDia > 0 ? Math.round((da.dia.concluidos.length / totalDia) * 100) : 0;
         const pParciaisDia   = totalDia > 0 ? Math.round((da.dia.parciais.length / totalDia) * 100) : 0;
@@ -660,6 +665,9 @@
         const qDispatchedDia = [...da.dia.concluidos, ...da.dia.parciais, ...da.dia.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
         const pDispatchedDia = totalDia > 0 ? Math.round((qDispatchedDia / totalDia) * 100) : 0;
 
+        // =========================================================================
+        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO BACKLOG
+        // =========================================================================
         const totalBacklog = da.backlog.concluidos.length + da.backlog.parciais.length + da.backlog.pendentes.length;
         const pParciaisBacklog   = totalBacklog > 0 ? Math.round((da.backlog.parciais.length / totalBacklog) * 100) : 0;
         const pPendentesBacklog  = totalBacklog > 0 ? Math.round((da.backlog.pendentes.length / totalBacklog) * 100) : 0;
@@ -667,13 +675,43 @@
         const qDispatchedBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round((qDispatchedBacklog / totalBacklog) * 100) : 0;
 
-        // 🎯 STRING COMPACTA EM LINHAS LIMPAS PARA MATAR O ERRO DE PARSING
+        // =========================================================================
+        // 🏗️ MONITOR DE CAPACIDADE CELULAR ISOLADO (TETO 10 MILHÕES)
+        // =========================================================================
+        const totalCelulas = da.celulas_conf_total || 0;
+        const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
+        
+        let corBarra = 'var(--status-green)';
+        if (pConsumo >= 90) corBarra = 'var(--status-red)';
+        else if (pConsumo >= 70) corBarra = '#F57C00'; // Laranja tático
+        
+        let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
+        
+        const estiloCorBarra = 'width: ' + pConsumo + '%; background-color: ' + corBarra + ';';
+        const estiloTextoPreco = 'font-weight:700; color:' + corBarra + ';';
+
+        // Geração da string HTML isolada para embutir na estrutura física do card
+        let htmlBarraCelulas = '<div class="cells-progress-container">' +
+                                 '<div class="cells-label-row">' +
+                                   '<span>Uso Células (ID_CONF):</span>' +
+                                   '<span style="' + estiloTextoPreco + '">' + textoCelulas + ' (' + pConsumo + '%)</span>' +
+                                 '</div>' +
+                                 '<div class="cells-bg-bar">' +
+                                   '<div class="cells-fill-bar" style="' + estiloCorBarra + '"></div>' +
+                                 '</div>' +
+                               '</div>';
+
+        // =========================================================================
+        // 📥 CONCATENAÇÃO UNIFICADA E PROTEGIDA CONTRA ESCAPES
+        // =========================================================================
         let cardHtml = '<div class="uf-card">' +
             '<div class="uf-header">' +
               '<div class="uf-title">' + uf.nome_estado + ' (' + uf.sigla + ')</div>' +
               '<span class="badge-status ' + corClasse + '"></span>' +
             '</div>' +
+            
             '<a href="https://google.com' + uf.id_planilha_prod + '" target="_blank" class="sheet-link">🔗 Planilha Produção</a>' +
+            
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
@@ -682,6 +720,7 @@
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
               '</div>' +
             '</div>' +
+
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>' +
               '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
@@ -691,11 +730,16 @@
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
               '</div>' +
             '</div>' +
+
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
+              
+              /* 📥 INJEÇÃO DA VARIÁVEL CELL-PROGRESS TOTALMENTE PROTEGIDA */
+              htmlBarraCelulas +
+
               '<div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.6rem; padding-top:0.4rem; font-size:0.75rem;">' +
                 '<span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">' + dataFormatadaPronta + '</span>' +
               '</div>' +
@@ -708,6 +752,7 @@
         grid.innerHTML += cardHtml;
       });
     }
+
 
 
 
