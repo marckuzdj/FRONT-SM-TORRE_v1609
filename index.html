@@ -809,50 +809,54 @@ function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
   document.getElementById("modal-logistica-detalhe").style.display = "flex";
 }
 
-// 🎯 CONTROLADOR ESPECIAL PARA LISTAR APENAS AS CARGAS DESPACHADAS DE UMA SESSÃO
-function abrirJanelaLogisticaEspecial(ufIndex, tipoPeriodo) {
-  const ufAlvo = cacheDadosEcosistema[ufIndex];
-  if (!ufAlvo) return;
+    // 🎯 CONTROLADOR ATUALIZADO: Filtra e lista APENAS as cargas que NÃO foram despachadas (Presas na Doca)
+    function abrirJanelaLogisticaEspecial(ufIndex, tipoPeriodo) {
+      const ufAlvo = cacheDadosEcosistema[ufIndex];
+      if (!ufAlvo) return;
 
-  const da = ufAlvo.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
-  
-  // Consolida todos os baldes do período para filtrar estritamente o que já saiu de fato (coluna R válida)
-  const todosPeriodo = [...da[tipoPeriodo].concluidos, ...da[tipoPeriodo].parciais, ...da[tipoPeriodo].pendentes];
-  const listaFiltrada = todosPeriodo.filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "");
+      const da = ufAlvo.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
+      
+      // Consolida todos os baldes daquela sessão (Dia ou Backlog)
+      const todosPeriodo = [...da[tipoPeriodo].concluidos, ...da[tipoPeriodo].parciais, ...da[tipoPeriodo].pendentes];
+      
+      // 🎯 INVERSÃO DA EQUAÇÃO EM RAM: Filtra estritamente as cargas onde o dispatch está vazio, nulo ou "Aguardando"
+      const listaPresos = todosPeriodo.filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "");
 
-  document.getElementById("modal-logistica-titulo").innerText = `${ufAlvo.nome_estado} (${ufAlvo.sigla}) - DESPACHADOS ${tipoPeriodo.toUpperCase()}`;
-  const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+      // Altera dinamicamente o título do modal para alertar a gestão
+      document.getElementById("modal-logistica-titulo").innerText = ufAlvo.nome_estado + " (" + ufAlvo.sigla + ") - PENDENTES DE SAÍDA " + tipoPeriodo.toUpperCase();
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
 
-  if (listaFiltrada.length === 0) {
-    caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio despachado para este período.</div>`;
-  } else {
-    let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
-                        <thead>
-                          <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:#00C853; font-weight:700;">
-                            <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
-                            <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
-                            <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
-                            <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
-                            <th style="padding:0.6rem 0.4rem;">⚡ HORÁRIO SAÍDA (DISPATCH)</th>
-                          </tr>
-                        </thead>
-                        <tbody>`;
-    
-    listaFiltrada.forEach(c => {
-      tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;">
-                       <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#333;">${c.transportadora || "Não Informada"}</td>
-                       <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
-                       <td style="padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;">${c.dt_import || "Sem registro"}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#00C853; font-weight:700; font-size:0.78rem;">${c.dispatch}</td>
-                     </tr>`;
-    });
-    
-    tabelaHtml += `</tbody></table>`;
-    caixaConteudo.innerHTML = tabelaHtml;
-  }
-  document.getElementById("modal-logistica-detalhe").style.display = "flex";
-}
+      if (listaPresos.length === 0) {
+        caixaConteudo.innerHTML = "<div style='text-align:center; padding-top:4rem; color:var(--status-green); font-weight:600;'>🚀 100% Despachado! Nenhuma carga presa nesta sessão.</div>";
+      } else {
+        let tabelaHtml = "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
+                            "<thead>" +
+                              "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--status-red); font-weight:700;'>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📦 ID ROMANEIO PRESO</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>🚛 TRANSPORTADORA</th>" +
+                                "<th style='padding:0.6rem 0.4rem; text-align:center;'>📋 PEDIDOS</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📅 DT IMPORT</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>⚠️ STATUS DISPATCH</th>" +
+                              "</tr>" +
+                            "</thead>" +
+                            "<tbody>";
+        
+        listaPresos.forEach(c => {
+          tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;'>" +
+                           "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace; color:var(--text-main);'>" + (c.romaneio || "Sem ID") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:#333;'>" + (c.transportadora || "Não Informada") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);'>" + (c.pedidos || 0) + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;'> " + (c.dt_import || "Sem registro") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:var(--status-red); font-weight:700; font-size:0.78rem;'>🚨 " + (c.dispatch || "Aguardando") + "</td>" +
+                         "</tr>";
+        });
+        
+        tabelaHtml += "</tbody></table>";
+        caixaConteudo.innerHTML = tabelaHtml;
+      }
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
+    }
+
 
 // =========================================================================
 // 🚀 ENGINE DE BUSCA RELÂMPAGO (INPUT DE TEXTO REATIVO)
