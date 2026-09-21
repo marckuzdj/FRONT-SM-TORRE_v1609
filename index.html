@@ -849,9 +849,13 @@
 
 
 
-    // 🎯 CONTROLADOR ATUALIZADO: Filtra e lista APENAS as cargas que NÃO foram despachadas (Presas na Doca)
-    function abrirJanelaLogisticaEspecial(ufIndex, tipoPeriodo) {
-      const ufAlvo = cacheDadosEcosistema[ufIndex];
+    // 🎯 CONTROLADOR ATUALIZADO: Filtra e lista APENAS as cargas que NÃO foram despachadas (Busca via Sigla UF)
+    function abrirJanelaLogisticaEspecial(ufSigla, tipoPeriodo) {
+      // 🎯 CONVERSÃO SEGURO: Força o parâmetro a virar String pura antes de rodar o find
+      const siglaTextoStr = String(ufSigla).trim().toUpperCase();
+
+      // Localiza o estado correto de forma unívoca na array global RAM, matando o bug pós-filtro
+      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === siglaTextoStr);
       if (!ufAlvo) return;
 
       const da = ufAlvo.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] } };
@@ -859,7 +863,7 @@
       // Consolida todos os baldes daquela sessão (Dia ou Backlog)
       const todosPeriodo = [...da[tipoPeriodo].concluidos, ...da[tipoPeriodo].parciais, ...da[tipoPeriodo].pendentes];
       
-      // 🎯 INVERSÃO DA EQUAÇÃO EM RAM: Filtra estritamente as cargas onde o dispatch está vazio, nulo ou "Aguardando"
+      // Filtra estritamente as cargas onde o dispatch está vazio, nulo ou "Aguardando"
       const listaPresos = todosPeriodo.filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "");
 
       // Altera dinamicamente o título do modal para alertar a gestão
@@ -896,6 +900,7 @@
       }
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
+
 
 
 // =========================================================================
