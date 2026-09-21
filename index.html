@@ -721,20 +721,19 @@
             
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
-              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'backlog\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesBacklog + '% (' + da.backlog.pendentes.length + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesBacklog + '% (' + da.backlog.pendentes.length + ')</a></div>' +
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
-                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
+                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + uf.sigla + ', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
               '</div>' +
             '</div>' +
 
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>' +
-              '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'dia\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisDia + '% (' + da.dia.parciais.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(' + index + ', \'dia\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesDia + '% (' + da.dia.pendentes.length + ')</a></div>' +
-              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
-                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + index + ', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
+              '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisDia + '% (' + da.dia.parciais.length + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesDia + '% (' + da.dia.pendentes.length + ')</a></div>' +              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
+                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + uf.sigla + ', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
               '</div>' +
             '</div>' +
 
@@ -766,8 +765,10 @@
     // 🌟 INTERFACE TOTALMENTE BLINDADA: Monta a grade analítica de 6 colunas livre de quebras por aspas
     // 🌟 INTERFACE EXPANDIDA BLINDADA: Busca por Sigla UF para erradicar o bug pós-filtro regional
     function abrirJanelaLogistica(ufSigla, tipoPeriodo, categoriaStatus) {
-      // 🎯 MOTOR DE BUSCA EM RAM: Localiza o estado exato pela sigla, ignorando a ordem dos cards na tela!
-      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === ufSigla.toUpperCase());
+      // 🎯 CONVERSÃO SEGURO: Força o parâmetro recebido a virar String pura antes de rodar o toUpperCase()
+      const siglaTextoStr = String(ufSigla).trim().toUpperCase();
+      
+      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === siglaTextoStr);
       if (!ufAlvo) return;
     
       const listaCargas = ufAlvo.detalhes_analiticos[tipoPeriodo][categoriaStatus] || [];
