@@ -669,8 +669,9 @@
         const pParciaisDia   = totalDia > 0 ? Math.round((da.dia.parciais.length / totalDia) * 100) : 0;
         const pPendentesDia  = totalDia > 0 ? Math.round((da.dia.pendentes.length / totalDia) * 100) : 0;
 
-        const qDispatchedDia = [...da.dia.concluidos, ...da.dia.parciais, ...da.dia.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
-        const pDispatchedDia = totalDia > 0 ? Math.round((qDispatchedDia / totalDia) * 100) : 0;
+        // 🎯 CORREÇÃO CIRÚRGICA: Declarando qPresosDia para bater com o layout inferior
+        const qPresosDia = [...da.dia.concluidos, ...da.dia.parciais, ...da.dia.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
+        const pDispatchedDia = totalDia > 0 ? Math.round(((totalDia - qPresosDia) / totalDia) * 100) : 0;
 
         // =========================================================================
         // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO BACKLOG
@@ -679,8 +680,9 @@
         const pParciaisBacklog   = totalBacklog > 0 ? Math.round((da.backlog.parciais.length / totalBacklog) * 100) : 0;
         const pPendentesBacklog  = totalBacklog > 0 ? Math.round((da.backlog.pendentes.length / totalBacklog) * 100) : 0;
 
-        const qDispatchedBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => c.dispatch && c.dispatch !== "Aguardando" && c.dispatch.toString().trim() !== "").length;
-        const pDispatchedBacklog = totalBacklog > 0 ? Math.round((qDispatchedBacklog / totalBacklog) * 100) : 0;
+        // 🎯 CORREÇÃO CIRÚRGICA: Declarando qPresosBacklog para bater com o layout inferior
+        const qPresosBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
+        const pDispatchedBacklog = totalBacklog > 0 ? Math.round(((totalBacklog - qPresosBacklog) / totalBacklog) * 100) : 0;
 
         // =========================================================================
         // 🏗️ MONITOR DE CAPACIDADE CELULAR ISOLADO (TETO 10 MILHÕES)
@@ -690,14 +692,13 @@
         
         let corBarra = 'var(--status-green)';
         if (pConsumo >= 90) corBarra = 'var(--status-red)';
-        else if (pConsumo >= 70) corBarra = '#F57C00'; // Laranja tático
+        else if (pConsumo >= 70) corBarra = '#F57C00'; 
         
         let textoCelulas = totalCelulas >= 1000000 ? (totalCelulas / 1000000).toFixed(1) + 'M' : (totalCelulas / 1000).toFixed(0) + 'K';
         
         const estiloCorBarra = 'width: ' + pConsumo + '%; background-color: ' + corBarra + ';';
         const estiloTextoPreco = 'font-weight:700; color:' + corBarra + ';';
 
-        // Geração da string HTML isolada para embutir na estrutura física do card
         let htmlBarraCelulas = '<div class="cells-progress-container">' +
                                  '<div class="cells-label-row">' +
                                    '<span>Uso Células (ID_CONF):</span>' +
@@ -711,7 +712,6 @@
         // =========================================================================
         // 📥 CONCATENAÇÃO UNIFICADA E PROTEGIDA CONTRA ESCAPES
         // =========================================================================
-        // 🎯 LÓGICA DE TELEMETRIA CROMÁTICA: Destaca o contador em vermelho se houver pendências de saída
         const corContadorBacklog = qPresosBacklog > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
         const corContadorDia = qPresosDia > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
 
@@ -727,20 +727,6 @@
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
               '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesBacklog + '% (' + da.backlog.pendentes.length + ')</a></div>' +
-              
-              /* ⚡ MÍTICA DE DISPATCH COMBINADA: % DE SUCESSO / PENDÊNCIAS EM VERMELHO */
-              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
-                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + 
-                  pDispatchedBacklog + '% <span style="color:var(--text-muted); font-weight:400; margin:0 0.2rem;">/</span> <span style="' + corContadorBacklog + '">' + qPresosBacklog + '</span>' +
-                '</a>' +
-              '</div>' +
-            '</div>' +
-
-            '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
-              '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>' +
-              '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisDia + '% (' + da.dia.parciais.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesDia + '% (' + da.dia.pendentes.length + ')</a></div>' +
               
               /* ⚡ MÍTICA DE DISPATCH COMBINADA: % DE SUCESSO / PENDÊNCIAS EM VERMELHO */
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
