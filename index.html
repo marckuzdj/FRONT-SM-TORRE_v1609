@@ -761,53 +761,67 @@
 
 
     // 🌟 CONTROLADOR REATIVO EXPANDIDO: Abre a lista forense com as 6 colunas logísticas em RAM
-// 🌟 INTERFACE EXPANDIDA: Monta o grid forense com as 6 colunas logísticas em RAM
-function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
-  const ufAlvo = cacheDadosEcosistema[ufIndex];
-  if (!ufAlvo) return;
-
-  const listaCargas = ufAlvo.detalhes_analiticos[tipoPeriodo][categoriaStatus] || [];
-  document.getElementById("modal-logistica-titulo").innerText = `${ufAlvo.nome_estado} (${ufAlvo.sigla}) - ${tipoPeriodo.toUpperCase()} [${categoriaStatus.toUpperCase()}]`;
-  const caixaConteudo = document.getElementById("modal-logistica-conteudo");
-
-  if (listaCargas.length === 0) {
-    caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
-  } else {
-    let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
-                        <thead>
-                          <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;">
-                            <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
-                            <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
-                            <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
-                            <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA</th>
-                            <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
-                            <th style="padding:0.6rem 0.4rem;">⚡ DISPATCH</th>
-                          </tr>
-                        </thead>
-                        <tbody>`;
+    // 🌟 INTERFACE EXPANDIDA: Monta o grid forense com as 6 colunas logísticas em RAM
+    function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
+      const ufAlvo = cacheDadosEcosistema[ufIndex];
+      if (!ufAlvo) return;
     
-    listaCargas.forEach(c => {
-      // Trata strings longas de intercorrência com reticências para manter a harmonia visual
-      let textoOcorrencia = c.intercorrencia || "Sem ocorrências";
-      if (textoOcorrencia.length > 35) {
-        textoOcorrencia = `<span title="${textoOcorrencia}">${textoOcorrencia.substring(0, 32)}...</span>`;
+      const listaCargas = ufAlvo.detalhes_analiticos[tipoPeriodo][categoriaStatus] || [];
+      document.getElementById("modal-logistica-titulo").innerText = `${ufAlvo.nome_estado} (${ufAlvo.sigla}) - ${tipoPeriodo.toUpperCase()} [${categoriaStatus.toUpperCase()}]`;
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+    
+      if (listaCargas.length === 0) {
+        caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
+      } else {
+        let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+                            <thead>
+                              <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;">
+                                <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
+                                <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
+                                <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
+                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA (CLIQUE P/ EXPANDIR)</th>
+                                <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
+                                <th style="padding:0.6rem 0.4rem;">⚡ DISPATCH</th>
+                              </tr>
+                            </thead>
+                            <tbody>`;
+        
+        listaCargas.forEach(c => {
+          let textoCompleto = c.intercorrencia || "Sem ocorrências";
+          let textoOcorrencia = textoCompleto;
+          
+          // Trata strings longas de intercorrência com reticências para manter a harmonia visual
+          if (textoCompleto.length > 40) {
+            textoOcorrencia = textoCompleto.substring(0, 37) + "...";
+          }
+    
+          // Escapa aspas simples para evitar quebras na chamada do clique
+          let textoTratadoEscapado = textoCompleto.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+          let textoCurtoEscapado = textoOcorrencia.replace(/'/g, "&#39;").replace(/"/g, "&quot;");
+    
+          tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;">
+                           <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
+                           <td style="padding:0.6rem 0.4rem; color:#333;">${c.transp || "Não Informada"}</td>
+                           <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
+                           
+                           <!-- 🎯 CÉLULA INTERATIVA: Clique expande em um bloco destacado; Clique seguinte recolhe -->
+                           <td style="padding:0.6rem 0.4rem; max-width:320px; color:var(--text-muted); font-size:0.78rem; cursor:pointer;" 
+                               title="${textoTratadoEscapado}" 
+                               onclick="this.getAttribute('data-open') === '1' ? (this.setAttribute('data-open','0') || (this.innerHTML = '${textoCurtoEscapado}')) : (this.setAttribute('data-open','1') || (this.innerHTML = '<div style=\\'white-space:normal; background:var(--purple-dim); color:var(--purple-neon); padding:0.4rem; border-radius:6px; font-weight:600;\\'>${textoTratadoEscapado}</div>'))">
+                             ${textoOcorrencia}
+                           </td>
+                           
+                           <td style="padding:0.6rem 0.4rem; color:#111; font-size:0.78rem; white-space:nowrap;">${c.dt_import || "Sem registro"}</td>
+                           <td style="padding:0.6rem 0.4rem; color:#00C853; font-weight:600; font-size:0.78rem; white-space:nowrap;">${c.dispatch || "Aguardando"}</td>
+                         </tr>`;
+        });
+        
+        tabelaHtml += `</tbody></table>`;
+        caixaConteudo.innerHTML = tabelaHtml;
       }
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
+    }
 
-      tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;">
-                       <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#333;">${c.transp || "Não Informada"}</td>
-                       <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
-                       <td style="padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;">${textoOcorrencia}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#111; font-size:0.78rem;">${c.dt_import || "Sem registro"}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#00C853; font-weight:600; font-size:0.78rem;">${c.dispatch || "Aguardando"}</td>
-                     </tr>`;
-    });
-    
-    tabelaHtml += `</tbody></table>`;
-    caixaConteudo.innerHTML = tabelaHtml;
-  }
-  document.getElementById("modal-logistica-detalhe").style.display = "flex";
-}
 
     // 🎯 CONTROLADOR ATUALIZADO: Filtra e lista APENAS as cargas que NÃO foram despachadas (Presas na Doca)
     function abrirJanelaLogisticaEspecial(ufIndex, tipoPeriodo) {
