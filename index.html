@@ -723,8 +723,9 @@
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
               '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesBacklog + '% (' + da.backlog.pendentes.length + ')</a></div>' +
+              // 🎯 INJEÇÃO CIRÚRGICA: Adicionado de forma rígida as aspas simples (\'...) em volta de uf.sigla
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
-                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + uf.sigla + ', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
+                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedBacklog + '% (' + qDispatchedBacklog + ')</a>' +
               '</div>' +
             '</div>' +
 
@@ -732,8 +733,9 @@
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">☀️ ROMANEIOS / DIA</div>' +
               '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'concluidos\'); return false;">' + pConcluidosDia + '% (' + da.dia.concluidos.length + ')</a></div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisDia + '% (' + da.dia.parciais.length + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'dia\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesDia + '% (' + da.dia.pendentes.length + ')</a></div>' +              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
-                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(' + uf.sigla + ', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
+              // 🎯 INJEÇÃO CIRÚRGICA: Adicionado de forma rígida as aspas simples (\'...) em volta de uf.sigla
+              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
+                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'dia\'); return false;" style="color:#00C853; font-weight:700;">' + pDispatchedDia + '% (' + qDispatchedDia + ')</a>' +
               '</div>' +
             '</div>' +
 
