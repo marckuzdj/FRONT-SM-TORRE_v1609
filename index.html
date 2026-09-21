@@ -795,7 +795,7 @@ function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
 
       tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;">
                        <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
-                       <td style="padding:0.6rem 0.4rem; color:#333;">${c.transportadora || "Não Informada"}</td>
+                       <td style="padding:0.6rem 0.4rem; color:#333;">${c.transp || "Não Informada"}</td>
                        <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
                        <td style="padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;">${textoOcorrencia}</td>
                        <td style="padding:0.6rem 0.4rem; color:#111; font-size:0.78rem;">${c.dt_import || "Sem registro"}</td>
@@ -844,7 +844,7 @@ function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
         listaPresos.forEach(c => {
           tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;'>" +
                            "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace; color:var(--text-main);'>" + (c.romaneio || "Sem ID") + "</td>" +
-                           "<td style='padding:0.6rem 0.4rem; color:#333;'>" + (c.transportadora || "Não Informada") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:#333;'>" + (c.transp || "Não Informada") + "</td>" +
                            "<td style='padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);'>" + (c.pedidos || 0) + "</td>" +
                            "<td style='padding:0.6rem 0.4rem; color:var(--text-muted); font-size:0.78rem;'> " + (c.dt_import || "Sem registro") + "</td>" +
                            "<td style='padding:0.6rem 0.4rem; color:var(--status-red); font-weight:700; font-size:0.78rem;'>🚨 " + (c.dispatch || "Aguardando") + "</td>" +
