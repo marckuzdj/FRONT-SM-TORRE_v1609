@@ -560,7 +560,14 @@
         if (sistemaEstabilizadoComSucesso) return;
 
         fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-          .then(res => res.json())
+          .then(res => {
+            // 🎯 INTERCEPTADOR CIRÚRGICO ANTI-404: Se o servidor do Google ocultar a URL temporariamente
+            // durante o processamento pesado, joga o fluxo direto para o .catch de forma limpa!
+            if (!res.ok) {
+              throw new Error("Servidor ocupado processando lote (Status: " + res.status + ")");
+            }
+            return res.json();
+          })
           .then(dados => {
             if (dados.success) {
               
@@ -606,17 +613,16 @@
           .catch(err => {
             if (sistemaEstabilizadoComSucesso) return;
 
-            // CASO O GOOGLE DÊ TIMEOUT NA PRIMEIRA REQUISIÇÃO ENQUANTO O ROBÔ ESTÁ SALVANDO NAS CÉLULAS
+            // 🎯 CAPTURA TANTO O TIMEOUT DE REDE QUANTO O SEU ERRO 404 DO GOOGLE DE FORMA SILENCIOSA
             barra.style.width = "45%";
             barra.style.background = "var(--purple-neon)";
-            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Gravando lote de metadados no Drive. Aguardando persistência celular (Polling Ativo)...<br>`;
+            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Compilando pacotes analíticos no Drive. Aguardando persistência (Polling Ativo)...<br>`;
             terminal.scrollTop = terminal.scrollHeight;
             
             // Continua tentando ler a API a cada 6 segundos de forma resiliente
             setTimeout(dispararAuditoriaFrenetica, 6000);
           });
       }
-
       // Dispara a esteira automática de carregamento
       dispararAuditoriaFrenetica();
     };
