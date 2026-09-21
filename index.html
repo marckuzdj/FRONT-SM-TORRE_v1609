@@ -761,22 +761,19 @@
     }
 
 
-
-
-
-
-
     // 🌟 CONTROLADOR REATIVO EXPANDIDO: Abre a lista forense com as 6 colunas logísticas em RAM
     // 🌟 INTERFACE EXPANDIDA: Monta o grid forense com as 6 colunas logísticas em RAM
     // 🌟 INTERFACE TOTALMENTE BLINDADA: Monta a grade analítica de 6 colunas livre de quebras por aspas
-    function abrirJanelaLogistica(ufIndex, tipoPeriodo, categoriaStatus) {
-      const ufAlvo = cacheDadosEcosistema[ufIndex];
+    // 🌟 INTERFACE EXPANDIDA BLINDADA: Busca por Sigla UF para erradicar o bug pós-filtro regional
+    function abrirJanelaLogistica(ufSigla, tipoPeriodo, categoriaStatus) {
+      // 🎯 MOTOR DE BUSCA EM RAM: Localiza o estado exato pela sigla, ignorando a ordem dos cards na tela!
+      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === ufSigla.toUpperCase());
       if (!ufAlvo) return;
-
+    
       const listaCargas = ufAlvo.detalhes_analiticos[tipoPeriodo][categoriaStatus] || [];
       document.getElementById("modal-logistica-titulo").innerText = `${ufAlvo.nome_estado} (${ufAlvo.sigla}) - ${tipoPeriodo.toUpperCase()} [${categoriaStatus.toUpperCase()}]`;
       const caixaConteudo = document.getElementById("modal-logistica-conteudo");
-
+    
       if (listaCargas.length === 0) {
         caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
       } else {
@@ -800,19 +797,20 @@
           if (textoCompleto.length > 40) {
             textoOcorrencia = textoCompleto.substring(0, 37) + "...";
           }
-
-          // Escapa aspas pesadas para o atributo 'title' nativo não sofrer quebras
+    
+          // Garante o escape correto de aspas para não quebrar o HTML interno
           let textoTituloEscapado = textoCompleto.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-
+          let textoCurtoEscapado = textoOcorrencia.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    
           tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;">
                            <td style="padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;">${c.romaneio || "Sem ID"}</td>
                            <td style="padding:0.6rem 0.4rem; color:#333;">${c.transp || "Não Informada"}</td>
                            <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
                            
-                           <!-- 🎯 CÉLULA DESACOPLADA: Passamos o index em RAM para a função gerenciar o clique sem injeção inline perigosa! -->
+                           <!-- 🎯 CÉLULA DESACOPLADA REVISADA: Repassa o objeto contextual isolado por linha -->
                            <td style="padding:0.6rem 0.4rem; max-width:320px; color:var(--text-muted); font-size:0.78rem; cursor:pointer;" 
                                title="${textoTituloEscapado}" 
-                               data-short="${textoOcorrencia.replace(/'/g, "&#39;")}"
+                               data-short="${textoCurtoEscapado}"
                                data-full="${textoTituloEscapado}"
                                data-open="0"
                                onclick="alternarTextoOcorrencia(this)">
@@ -829,6 +827,7 @@
       }
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
+
 
     // 🎯 NOVA ENGINE DE EXPANSÃO SEGURA: Gerencia o abre/fecha lendo os metadados da célula de forma síncrona
     function alternarTextoOcorrencia(elementoCelular) {
