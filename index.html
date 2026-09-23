@@ -412,9 +412,11 @@
     <div class="terminal-box" id="modal-logistica-conteudo" style="background: #F4F4F6; color: var(--text-main); height: 300px; border: 1px solid rgba(0,0,0,0.05); padding: 1.25rem; overflow-y: auto;">
       <!-- Os romaneios entrarão aqui em tempo real -->
     </div>
-    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
-      <button class="btn-global" onclick="document.getElementById('modal-logistica-detalhe').style.display='none'">FECHAR LISTA</button>
-    </div>
+      <!-- 🎯 SUBSTITUA APENAS A DIV DE BOTÕES NO RODAPÉ DO MODAL DE LOGÍSTICA DE DETALHE -->
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+        <button class="btn-action-sm" onclick="exportarTabelaModalParaCSV()" style="background: var(--purple-dim); color: var(--purple-neon); padding: 0.75rem 1.5rem; font-size: 0.85rem;">📥 Exportar Tabela (.CSV)</button>
+        <button class="btn-global" onclick="document.getElementById('modal-logistica-detalhe').style.display='none'">FECHAR LISTA</button>
+      </div>
   </div>
 </div>
 
@@ -443,8 +445,8 @@
 
     
     // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
-  // const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
-   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec"; //Perfil 2
+  //const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec"; //Perfil 2
 
 
     function carregarDadosGlobais() {
@@ -747,18 +749,18 @@
               '</div>' +
             '</div>' +
 
-            /* 🏗️ SUBSTITUA CIRURGICAMENTE APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml */
+            /* 🏗️ COPIE E SUBSTITUA APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml GERAL */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
-              '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
-              '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
-              '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
               
-              /* 🎯 EXCEÇÕES INTERATIVAS: Puxa o total de itens salvos nas novas arrays de auditoria */
+              /* 🔗 LINKS DIRETOS CONECTADOS À EXTRATORA DE HISTÓRICO EM RAM */
+              '<div class="diagnostic-item"><span>Abas Ativas:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_ativas_lista\', \'ABAS ATIVAS NO ARQUIVO\'); return false;" style="color:var(--text-main); font-weight: 600;">' + uf.abas_existentes + '</a></div>' +
+              '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_orfas_lista\', \'ABAS ÓRFÃS LOCAIS DETECTADAS\'); return false;" style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.orfas + '</a></div>' +
+              '<div class="diagnostic-item"><span>Faltantes Master:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'faltantes_master_lista\', \'ROMANEIOS FALTANTES NA MASTER\'); return false;" style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.faltantes + '</a></div>' +
+              
               '<div class="diagnostic-item"><span>Contingência/Falhas:</span><a href="#" class="sheet-link" onclick="abrirJanelaFalhasProcesso(\'' + uf.sigla + '\', \'falhas_contingencia_lista\'); return false;" style="' + ((da.falhas_contingencia_lista || []).length > 0 ? 'color: var(--status-red); font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + (da.falhas_contingencia_lista || []).length + '</a></div>' +
               '<div class="diagnostic-item"><span>Limpeza/Falhas:</span><a href="#" class="sheet-link" onclick="abrirJanelaFalhasProcesso(\'' + uf.sigla + '\', \'falhas_limpeza_lista\'); return false;" style="' + ((da.falhas_limpeza_lista || []).length > 0 ? 'color: var(--status-red); font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + (da.falhas_limpeza_lista || []).length + '</a></div>' +
 
-              /* BARRA DE CAPACIDADE CELULAR LIMIT 10M */
               htmlBarraCelulas +
 
               '<div class="diagnostic-item" style="border-top: 1px dashed #E5E5EA; margin-top:0.6rem; padding-top:0.4rem; font-size:0.75rem;">' +
@@ -1089,6 +1091,106 @@ function buscarUfPorTexto() {
       document.getElementById("kpi-total-resgatadas").innerText = somaOrfas;
       document.getElementById("kpi-total-faltantes").innerText = somaFaltantes;
       document.getElementById("kpi-total-criticos").innerText = somaCriticos;
+    }
+
+    // =========================================================================
+    // 📊 ENGINE UNIVERSAL DE EXPORTAÇÃO PARA CSV (EXCEL WHITE MODE PRO)
+    // =========================================================================
+    // =========================================================================
+    // 📊 ENGINE UNIVERSAL DE EXPORTAÇÃO PARA CSV (LEITOR METADADOS ANTI-CORTE)
+    // =========================================================================
+    function exportarTabelaModalParaCSV() {
+      const tabela = document.querySelector("#modal-logistica-conteudo table");
+      if (!tabela) {
+        alert("⚠️ Nenhuma tabela de dados encontrada para exportação.");
+        return;
+      }
+
+      const linhasTabela = tabela.querySelectorAll("tr");
+      let linhasCsv = [];
+
+      linhasTabela.forEach(linhaFisica => {
+        let colunasLinha = [];
+        const celulas = linhaFisica.querySelectorAll("th, td");
+        
+        celulas.forEach(celula => {
+          let textoCelula = celula.innerText.trim();
+          
+          // 🎯 ENGENHARIA ANTI-CORTE: Se a célula tiver o atributo 'data-full', 
+          // nós extraímos o relatório 100% completo da memória RAM, ignorando as reticências (...) da tela!
+          if (celula.hasAttribute("data-full")) {
+            textoCelula = celula.getAttribute("data-full").trim();
+          }
+
+          // Tratamento de segurança para Excel: escapa aspas duplas e quebras de linha
+          textoCelula = textoCelula.replace(/"/g, '""').replace(/\n/g, " ");
+          colunasLinha.push('"' + textoCelula + '"');
+        });
+
+        // Junta as colunas usando o ponto e vírgula (;), padrão oficial do Excel no Brasil
+        linhasCsv.push(colunasLinha.join(";"));
+      });
+
+      // Une as linhas com quebra de página universal e força o encoding UTF-8 (BOM) contra erros de acentuação
+      const conteudoFinalCsv = "\uFEFF" + linhasCsv.join("\n");
+      
+      // Captura o título do modal para batizar o arquivo de forma inteligente
+      let tituloModal = document.getElementById("modal-logistica-titulo").innerText.trim();
+      let nomeArquivoPronto = "SmartCargas_" + tituloModal.replace(/[^a-zA-Z0-9]/g, "_") + ".csv";
+
+      // Dispara o gatilho invisível de download nativo do navegador
+      const blobDados = new Blob([conteudoFinalCsv], { type: "text/csv;charset=utf-8;" });
+      const linkDownload = document.createElement("a");
+      
+      if (navigator.msSaveBlob) { 
+        navigator.msSaveBlob(blobDados, nomeArquivoPronto);
+      } else {
+        linkDownload.href = URL.createObjectURL(blobDados);
+        linkDownload.setAttribute("download", nomeArquivoPronto);
+        linkDownload.style.visibility = "hidden";
+        document.body.appendChild(linkDownload);
+        linkDownload.click();
+        document.body.removeChild(linkDownload);
+      }
+    }
+
+    // 🎯 REVISOR DE INFRAESTRUTURA: Monta a listagem limpa contendo apenas ID, Conferência e Importação
+    function abrirJanelaEstruturaDetalhe(ufSigla, propriedadeLista, textoTitulo) {
+      const siglaTextoStr = String(ufSigla).trim().toUpperCase();
+      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === siglaTextoStr);
+      if (!ufAlvo) return;
+
+      const da = ufAlvo.detalhes_analiticos || {};
+      const registrosEstrutura = da[propriedadeLista] || [];
+
+      document.getElementById("modal-logistica-titulo").innerText = ufAlvo.nome_estado + " (" + ufAlvo.sigla + ") - " + textoTitulo;
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+
+      if (registrosEstrutura.length === 0) {
+        caixaConteudo.innerHTML = "<div style='text-align:center; padding-top:4rem; color:var(--status-green); font-weight:500;'>Nenhum registro ativo encontrado nesta categoria.</div>";
+      } else {
+        let tabelaHtml = "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
+                            "<thead>" +
+                              "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;'>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📦 ID ROMANEIO</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📅 DT CONFERÊNCIA (COL F)</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📅 DT IMPORTAÇÃO (COL Q)</th>" +
+                              "</tr>" +
+                            "</thead>" +
+                            "<tbody>";
+
+        registrosEstrutura.forEach(item => {
+          tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;'>" +
+                           "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace;'>" + (item.romaneio || "Sem ID") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:var(--text-muted);'>" + (item.conferencia || "Sem registro") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:#111;'>" + (item.dt_import || "Sem registro") + "</td>" +
+                         "</tr>";
+        });
+
+        tabelaHtml += "</tbody></table>";
+        caixaConteudo.innerHTML = tabelaHtml;
+      }
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
 
     
