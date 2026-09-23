@@ -747,16 +747,16 @@
               '</div>' +
             '</div>' +
 
-            /* 🏗️ SUBSTITUA APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml */
+            /* 🏗️ SUBSTITUA CIRURGICAMENTE APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
               
-              /* 🎯 NOVOS INDICADORES DE FALHA DE PROCESSO EM TEXTO PURO */
-              '<div class="diagnostic-item"><span>Contingência/Falhas:</span><span style="' + ((da.falha_contingencia || 0) > 0 ? 'color: var(--status-red); font-weight: 700;' : '') + '">' + (da.falha_contingencia || 0) + '</span></div>' +
-              '<div class="diagnostic-item"><span>Limpeza/Falhas:</span><span style="' + ((da.falha_limpeza || 0) > 0 ? 'color: var(--status-red); font-weight: 700;' : '') + '">' + (da.falha_limpeza || 0) + '</span></div>' +
+              /* 🎯 EXCEÇÕES INTERATIVAS: Puxa o total de itens salvos nas novas arrays de auditoria */
+              '<div class="diagnostic-item"><span>Contingência/Falhas:</span><a href="#" class="sheet-link" onclick="abrirJanelaFalhasProcesso(\'' + uf.sigla + '\', \'falhas_contingencia_lista\'); return false;" style="' + ((da.falhas_contingencia_lista || []).length > 0 ? 'color: var(--status-red); font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + (da.falhas_contingencia_lista || []).length + '</a></div>' +
+              '<div class="diagnostic-item"><span>Limpeza/Falhas:</span><a href="#" class="sheet-link" onclick="abrirJanelaFalhasProcesso(\'' + uf.sigla + '\', \'falhas_limpeza_lista\'); return false;" style="' + ((da.falhas_limpeza_lista || []).length > 0 ? 'color: var(--status-red); font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + (da.falhas_limpeza_lista || []).length + '</a></div>' +
 
               /* BARRA DE CAPACIDADE CELULAR LIMIT 10M */
               htmlBarraCelulas +
@@ -919,6 +919,51 @@
     }
 
 
+    // 🎯 CONTROLADOR DE EXCEÇÕES: Monta a tabela forense com 2 colunas exclusivas para auditoria de falhas
+    function abrirJanelaFalhasProcesso(ufSigla, campoListaPropriedade) {
+      const siglaTextoStr = String(ufSigla).trim().toUpperCase();
+      const ufAlvo = cacheDadosEcosistema.find(uf => uf.sigla.toUpperCase() === siglaTextoStr);
+      if (!ufAlvo) return;
+
+      const da = ufAlvo.detalhes_analiticos || {};
+      const listaFalhas = da[campoListaPropriedade] || [];
+      
+      const nomeMétricaCard = campoListaPropriedade === 'falhas_contingencia_lista' ? 'CONTINGÊNCIA / FALHAS' : 'LIMPEZA / FALHAS';
+      document.getElementById("modal-logistica-titulo").innerText = ufAlvo.nome_estado + " (" + ufAlvo.sigla + ") - " + nomeMétricaCard;
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+
+      if (listaFalhas.length === 0) {
+        caixaConteudo.innerHTML = "<div style='text-align:center; padding-top:4rem; color:var(--status-green); font-weight:600;'>🚀 Processo 100% íntegro! Nenhuma falha detectada nesta categoria.</div>";
+      } else {
+        let tabelaHtml = "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
+                            "<thead>" +
+                              "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--status-red); font-weight:700;'>" +
+                                "<th style='padding:0.6rem 0.4rem; width: 160px;'>📦 ID ROMANEIO</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>⚠️ CRITÉRIO / FALHA DO PROCESSO</th>" +
+                              "</tr>" +
+                            "</thead>" +
+                            "<tbody>";
+        
+        listaFalhas.forEach(f => {
+          tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;'>" +
+                           "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace; color:var(--text-main);'>" + (f.romaneio || "Sem ID") + "</td>" +
+                           "<td style='padding:0.6rem 0.4rem; color:var(--text-muted); line-height: 1.4;'>" + (f.falha || "Inconsistência genérica detectada.") + "</td>" +
+                         "</tr>";
+        });
+        
+        tabelaHtml += "</tbody></table>";
+        caixaConteudo.innerHTML = tabelaHtml;
+      }
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
+    }
+
+
+
+
+  
+  
+  
+    
 
 // =========================================================================
 // 🚀 ENGINE DE BUSCA RELÂMPAGO (INPUT DE TEXTO REATIVO)
