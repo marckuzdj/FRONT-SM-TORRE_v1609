@@ -443,7 +443,7 @@
 
     
     // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
-  //  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
+  // const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec"; //Perfil 2
 
 
@@ -747,13 +747,17 @@
               '</div>' +
             '</div>' +
 
-            /* 🏗️ QUADRANTE 3: ESTRUTURA FÍSICA */
+            /* 🏗️ SUBSTITUA APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               '<div class="diagnostic-item"><span>Abas Ativas:</span><span>' + uf.abas_existentes + '</span></div>' +
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><span style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : '') + '">' + uf.orfas + '</span></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><span style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : '') + '">' + uf.faltantes + '</span></div>' +
               
+              /* 🎯 NOVOS INDICADORES DE FALHA DE PROCESSO EM TEXTO PURO */
+              '<div class="diagnostic-item"><span>Contingência/Falhas:</span><span style="' + ((da.falha_contingencia || 0) > 0 ? 'color: var(--status-red); font-weight: 700;' : '') + '">' + (da.falha_contingencia || 0) + '</span></div>' +
+              '<div class="diagnostic-item"><span>Limpeza/Falhas:</span><span style="' + ((da.falha_limpeza || 0) > 0 ? 'color: var(--status-red); font-weight: 700;' : '') + '">' + (da.falha_limpeza || 0) + '</span></div>' +
+
               /* BARRA DE CAPACIDADE CELULAR LIMIT 10M */
               htmlBarraCelulas +
 
@@ -761,6 +765,7 @@
                 '<span>Atualizado em:</span><span style="font-weight:500; color:var(--text-muted);">' + dataFormatadaPronta + '</span>' +
               '</div>' +
             '</div>' +
+
             '<div class="action-row-card">' +
               '<button class="btn-action-sm" onclick="forcarResgateLocal(\'' + uf.sigla + '\', \'' + uf.id_planilha_prod + '\')">Resgatar Órfãs</button>' +
             '</div>' +
