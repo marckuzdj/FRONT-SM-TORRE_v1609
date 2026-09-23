@@ -884,7 +884,7 @@
       const listaPresos = todosPeriodo.filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "");
 
       // Altera dinamicamente o título do modal para alertar a gestão
-      document.getElementById("modal-logistica-titulo").innerText = ufAlvo.nome_estado + " (" + ufAlvo.sigla + ") - PENDENTES DE SAÍDA " + tipoPeriodo.toUpperCase();
+      document.getElementById("modal-logistica-titulo").innerText = ufAlvo.nome_estado + " (" + ufAlvo.sigla + ") - DISPATCH NÃO INFORMADO " + tipoPeriodo.toUpperCase();
       const caixaConteudo = document.getElementById("modal-logistica-conteudo");
 
       if (listaPresos.length === 0) {
