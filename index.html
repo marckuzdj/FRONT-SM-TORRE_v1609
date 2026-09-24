@@ -336,6 +336,43 @@
       transition: width 0.4s ease, background-color 0.4s ease;
     }
 
+    /* 🚚 ESTILOS ADICIONAIS: SHARE DE TRANSPORTADORAS NO MODAL */
+    .modal-kpi-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      background: #F4F4F6;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.25rem;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .modal-kpi-pill {
+      background: #FFFFFF;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+      border-left: 3px solid var(--purple-neon);
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      min-width: 140px;
+    }
+    .modal-kpi-title {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .modal-kpi-value {
+      color: var(--text-main);
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+    }
+
     
   </style>
 
@@ -797,13 +834,41 @@
       if (listaCargas.length === 0) {
         caixaConteudo.innerHTML = `<div style="text-align:center; padding-top:4rem; color:var(--text-muted); font-weight:500;">Nenhum romaneio ativo mapeado nesta categoria.</div>`;
       } else {
-        let tabelaHtml = `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
+        // =========================================================================
+        // 📊 BALDE ANALÍTICO DE SHARE EM RAM: SOMA VOLUMETRIA DE TRANSPORTADORAS
+        // =========================================================================
+        let mapaTransp = {};
+        listaCargas.forEach(c => {
+          let tName = c.transp || "Não Informada";
+          mapaTransp[tName] = (mapaTransp[tName] || 0) + 1;
+        });
+
+        // Montagem do contêiner horizontal de pílulas estatísticas
+        let htmlKpis = `<div class="modal-kpi-container">
+                          <div class="modal-kpi-pill">
+                            <span class="modal-kpi-title">Total Geral</span>
+                            <span class="modal-kpi-value"><span>${listaCargas.length} Rom.</span></span>
+                          </div>`;
+        
+        for (let t in mapaTransp) {
+          let pct = Math.round((mapaTransp[t] / listaCargas.length) * 100);
+          htmlKpis += `<div class="modal-kpi-pill">
+                         <span class="modal-kpi-title" title="${t}">${t.length > 18 ? t.substring(0,16) + '...' : t}</span>
+                         <span class="modal-kpi-value">
+                           <span>${mapaTransp[t]}</span>
+                           <span style="color:var(--purple-neon);">${pct}%</span>
+                         </span>
+                       </div>`;
+        }
+        htmlKpis += `</div>`;
+
+        let tabelaHtml = htmlKpis + `<table style="width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;">
                             <thead>
                               <tr style="border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;">
                                 <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
                                 <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
                                 <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
-                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA</th>
+                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA (CLIQUE P/ EXPANDIR)</th>
                                 <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
                                 <th style="padding:0.6rem 0.4rem;">⚡ DISPATCH</th>
                               </tr>
@@ -818,7 +883,6 @@
             textoOcorrencia = textoCompleto.substring(0, 37) + "...";
           }
     
-          // Garante o escape correto de aspas para não quebrar o HTML interno
           let textoTituloEscapado = textoCompleto.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
           let textoCurtoEscapado = textoOcorrencia.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
     
@@ -827,7 +891,6 @@
                            <td style="padding:0.6rem 0.4rem; color:#333;">${c.transp || "Não Informada"}</td>
                            <td style="padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);">${c.pedidos || 0}</td>
                            
-                           <!-- 🎯 CÉLULA DESACOPLADA REVISADA: Repassa o objeto contextual isolado por linha -->
                            <td style="padding:0.6rem 0.4rem; max-width:320px; color:var(--text-muted); font-size:0.78rem; cursor:pointer;" 
                                title="${textoTituloEscapado}" 
                                data-short="${textoCurtoEscapado}"
@@ -847,6 +910,7 @@
       }
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
+
 
 
     // 🎯 NOVA ENGINE DE EXPANSÃO SEGURA: Gerencia o abre/fecha lendo os metadados da célula de forma síncrona
@@ -892,7 +956,37 @@
       if (listaPresos.length === 0) {
         caixaConteudo.innerHTML = "<div style='text-align:center; padding-top:4rem; color:var(--status-green); font-weight:600;'>🚀 100% Despachado! Nenhuma carga presa nesta sessão.</div>";
       } else {
-        let tabelaHtml = "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
+        // =========================================================================
+        // 📊 BALDE ANALÍTICO DE SHARE EM RAM: SOMA VOLUMETRIA DE PRESOS POR TRANSP
+        // =========================================================================
+        let mapaTransp = {};
+        listaPresos.forEach(c => {
+          let tName = c.transp || "Não Informada";
+          mapaTransp[tName] = (mapaTransp[tName] || 0) + 1;
+        });
+
+        // Montagem do contêiner horizontal de pílulas estatísticas críticas em vermelho
+        let htmlKpis = '<div class="modal-kpi-container">' +
+                          '<div class="modal-kpi-pill" style="border-left-color: var(--status-red);">' +
+                            '<span class="modal-kpi-title">Total Retido</span>' +
+                            '<span class="modal-kpi-value" style="color:var(--status-red);">' + listaPresos.length + ' Rom.</span>' +
+                          '</div>';
+        
+        for (let t in mapaTransp) {
+          let pct = Math.round((mapaTransp[t] / listaPresos.length) * 100);
+          let nomeExibicaoTransp = t.length > 18 ? t.substring(0,16) + "..." : t;
+          
+          htmlKpis += '<div class="modal-kpi-pill">' +
+                         '<span class="modal-kpi-title" title="' + t + '">' + nomeExibicaoTransp + '</span>' +
+                         '<span class="modal-kpi-value">' +
+                           '<span>' + mapaTransp[t] + '</span>' +
+                           '<span style="color:var(--status-red);">' + pct + '%</span>' +
+                         '</span>' +
+                       '</div>';
+        }
+        htmlKpis += '</div>';
+
+        let tabelaHtml = htmlKpis + "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
                             "<thead>" +
                               "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--status-red); font-weight:700;'>" +
                                 "<th style='padding:0.6rem 0.4rem;'>📦 ID ROMANEIO PRESO</th>" +
@@ -905,7 +999,7 @@
                             "<tbody>";
         
         listaPresos.forEach(c => {
-          tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500;'>" +
+          tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;'>" +
                            "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace; color:var(--text-main);'>" + (c.romaneio || "Sem ID") + "</td>" +
                            "<td style='padding:0.6rem 0.4rem; color:#333;'>" + (c.transp || "Não Informada") + "</td>" +
                            "<td style='padding:0.6rem 0.4rem; text-align:center; font-weight:600; color:var(--purple-neon);'>" + (c.pedidos || 0) + "</td>" +
@@ -919,6 +1013,7 @@
       }
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
+
 
 
     // 🎯 CONTROLADOR DE EXCEÇÕES: Monta a tabela forense com 2 colunas exclusivas para auditoria de falhas
