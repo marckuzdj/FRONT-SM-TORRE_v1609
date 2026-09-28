@@ -584,94 +584,14 @@
     }
 
     // Ajuste da carga inicial reativa síncrona conectada ao cache
-    // 🎯 REATIVO, BLINDADO E COM LOGS VISUAIS EM TEMPO REAL NA CARGA INICIAL
+    // =========================================================================
+    // 🎯 INTERFACE MASTER: CARREGAMENTO INICIAL INTELIGENTE HÍBRIDO (ANTI-LOOP)
+    // =========================================================================
     window.onload = function() {
-      const modal = document.getElementById("modal-resgate");
-      const barra = document.getElementById("barra-progresso");
-      const terminal = document.getElementById("terminal-logs");
-      const btnFechar = document.getElementById("btn-fechar-modal");
-      
-      // Abre o modal no modo de sincronismo inicial
-      document.getElementById("modal-titulo").innerText = "Sincronizando Sistema Central";
-      modal.style.display = "flex";
-      barra.style.width = "20%";
-      barra.style.background = "var(--purple-neon)";
-      
-      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
-
-      let sistemaEstabilizadoComSucesso = false;
-
-      function dispararAuditoriaFrenetica() {
-        if (sistemaEstabilizadoComSucesso) return;
-
-        fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-          .then(res => {
-            // 🎯 INTERCEPTADOR CIRÚRGICO ANTI-404: Se o servidor do Google ocultar a URL temporariamente
-            // durante o processamento pesado, joga o fluxo direto para o .catch de forma limpa!
-            if (!res.ok) {
-              throw new Error("Servidor ocupado processando lote (Status: " + res.status + ")");
-            }
-            return res.json();
-          })
-          .then(dados => {
-            if (dados.success) {
-              
-              // 🔍 CASO 1: O BACKEND INFORMA QUE O AUTO-GATILHO ESTÁ POPULANDO AS COLUNAS VAZIAS
-              if (dados.initializing) {
-                barra.style.width = "65%";
-                barra.style.background = "var(--purple-neon)";
-                // 🌟 INJEÇÃO DE LOG ATIVA: Alerta o usuário do progresso real na tela!
-                terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[PROCESSANDO]</span> Colunas vazias detectadas. Robô de emergência ativo atualizando as 54 UFs no Drive...<br>`;
-                terminal.scrollTop = terminal.scrollHeight; // Auto-scroll do terminal
-                
-                // Tenta ler novamente em 5 segundos até o robô terminar
-                setTimeout(dispararAuditoriaFrenetica, 5000);
-                return;
-              }
-
-              // 🎯 CASO 2: SINAL VERDE! OS DADOS JÁ OPERAM NA PLANILHA OU O ROBÔ ACABOU DE SALVAR
-              sistemaEstabilizadoComSucesso = true; 
-              barra.style.width = "100%";
-              barra.style.background = "var(--status-green)";
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Ecossistema carregado com precisão.<br>`;
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] 🏁 Painel liberado com sucesso.`;
-              terminal.scrollTop = terminal.scrollHeight;
-              
-              // Carrega a malha global RAM e renderiza os cards
-              cacheDadosEcosistema = dados.data;
-              renderizarCards(dados.data);
-              
-              // 🎯 CORREÇÃO CIRÚRGICA: Alinhado para o nome real com 'D' maiúsculo
-              calcularKPIDinamicos(dados.data);
-              
-              // Oculta o modal automaticamente após o sucesso para liberar o dashboard claro
-              setTimeout(() => { 
-                modal.style.display = "none"; 
-              }, 1200);
-
-            } else {
-              barra.style.width = "100%"; 
-              barra.style.background = "var(--status-red)";
-              terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ERRO]</span> Servidor recusou: ${dados.error}<br>`;
-            }
-          })
-          .catch(err => {
-            if (sistemaEstabilizadoComSucesso) return;
-
-            // 🎯 CAPTURA TANTO O TIMEOUT DE REDE QUANTO O SEU ERRO 404 DO GOOGLE DE FORMA SILENCIOSA
-            barra.style.width = "45%";
-            barra.style.background = "var(--purple-neon)";
-            terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-info">[INFO]</span> Compilando pacotes analíticos no Drive. Aguardando persistência (Polling Ativo)...<br>`;
-            terminal.scrollTop = terminal.scrollHeight;
-            
-            // Continua tentando ler a API a cada 6 segundos de forma resiliente
-            setTimeout(dispararAuditoriaFrenetica, 12000);
-          });
-      }
-      // Dispara a esteira automática de carregamento
-      dispararAuditoriaFrenetica();
+      // 🟢 REGRA DE OURO: Invoca a carga resiliente nativa configurada para ler o cache estático.
+      // Isso impede que o Index tente forçar o robô pesado de emergência no Drive sem necessidade!
+      carregarDadosGlobais(false);
     };
-
 
 
     // 🎯 FORMATADOR DE DATA PREMIUM BRASILEIRO (dd/MM/yyyy HH:mm:ss)
