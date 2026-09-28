@@ -732,7 +732,7 @@
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               
-              '<div class="diagnostic-item"><span>Romaneios Ativos/UF:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_ativas_lista\', \'ABAS ATIVAS NO ARQUIVO\'); return false;" style="color:var(--text-main); font-weight: 600;">' + uf.abas_existentes + '</a></div>' +
+              '<div class="diagnostic-item"><span>Romaneios Ativos/UF:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_ativas_lista\', \'ROMANEIOS ATIVOS NA TABELA\'); return false;" style="color:var(--text-main); font-weight: 600;">' + uf.abas_existentes + '</a></div>' +
               '<div class="diagnostic-item"><span>Romaneios Não Migrados (Painel):</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_orfas_lista\', \'ABAS ÓRFÃS LOCAIS DETECTADAS\'); return false;" style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.orfas + '</a></div>' +
               '<div class="diagnostic-item"><span>Finalização Pendente (Painel):</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'faltantes_master_lista\', \'ROMANEIOS FALTANTES NA MASTER\'); return false;" style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.faltantes + '</a></div>' +
               
@@ -810,7 +810,7 @@
                                 <th style="padding:0.6rem 0.4rem;">📦 ID ROMANEIO</th>
                                 <th style="padding:0.6rem 0.4rem;">🚛 TRANSPORTADORA</th>
                                 <th style="padding:0.6rem 0.4rem; text-align:center;">📋 PEDIDOS</th>
-                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA (CLIQUE P/ EXPANDIR)</th>
+                                <th style="padding:0.6rem 0.4rem;">⚠️ INTERCORRÊNCIA</th>
                                 <th style="padding:0.6rem 0.4rem;">📅 DT IMPORT</th>
                                 <th style="padding:0.6rem 0.4rem;">⚡ DISPATCH</th>
                               </tr>
@@ -1279,8 +1279,8 @@ function buscarUfPorTexto() {
                             "<thead>" +
                               "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--purple-neon); font-weight:700;'>" +
                                 "<th style='padding:0.6rem 0.4rem;'>📦 ID ROMANEIO</th>" +
-                                "<th style='padding:0.6rem 0.4rem;'>📅 DT CONFERÊNCIA (COL F)</th>" +
-                                "<th style='padding:0.6rem 0.4rem;'>📅 DT IMPORTAÇÃO (COL Q)</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📅 DT CONFERÊNCIA (TRANSP)</th>" +
+                                "<th style='padding:0.6rem 0.4rem;'>📅 DT IMPORTAÇÃO (OPERADOR)</th>" +
                               "</tr>" +
                             "</thead>" +
                             "<tbody>";
