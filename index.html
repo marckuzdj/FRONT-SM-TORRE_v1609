@@ -384,7 +384,7 @@
   <div class="dashboard-container">
     <header>
       <h1><span>SmartCargas | </span>BREAKFAST DIAGNOSTIC PANEL</h1>
-      <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
+      <button class="btn-global" onclick="carregarDadosGlobais(true)">Atualizar Ecossistema</button>
     </header>
 
     <!-- 🌟 INJEÇÃO DA BARRA DE FILTROS REGIONAIS BRASILEIRAS -->
@@ -481,24 +481,26 @@
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec"; //Perfil 2
 
 
-    function carregarDadosGlobais() {
+    // 🎯 ENGINE HÍBRIDA CALIBRADA: Aceita o parâmetro para forçar atualização no servidor
+    function carregarDadosGlobais(forcarAtualizacaoDrive = false) {
       const grid = document.getElementById("grid-estados-uf");
       const modal = document.getElementById("modal-resgate");
       const barra = document.getElementById("barra-progresso");
       const terminal = document.getElementById("terminal-logs");
       
-      document.getElementById("modal-titulo").innerText = "Auditoria Global do Ecossistema (54 UFs)";
+      document.getElementById("modal-titulo").innerText = forcarAtualizacaoDrive ? "Varredura Forçada em RAM (54 UFs)" : "Sincronizando Sistema Central";
       modal.style.display = "flex";
       barra.style.width = "15%";
       barra.style.background = "var(--purple-neon)";
       
-      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
+      terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
       grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
 
-      // 🎯 ENGENHARIA RESILIENTE: Adiciona carimbo dinâmico para forçar o Google a limpar a rota e quebrar o erro 404
-      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal&_cb=" + Date.now())
+      // 🎯 ACPLAMENTO SEGURO: Se o parâmetro for true, injeta o force=true na URL da API, junto com o limpador de cache
+      const urlFinalRequest = WEB_APP_URL + "?action=obterDiagnosticoGlobal&force=" + forcarAtualizacaoDrive + "&_cb=" + Date.now();
+
+      fetch(urlFinalRequest)
         .then(response => {
-          // Captura erros de infraestrutura da nuvem do Google (ex: 404) antes de quebrar o parser JSON
           if (!response.ok) {
             throw new Error("Servidor ocupado ou instabilidade de cache (Status: " + response.status + ")");
           }
@@ -512,33 +514,29 @@
             return;
           }
           
-          // 📥 Aloca o array retornado no cache global da RAM do navegador
           cacheDadosEcosistema = dados.data;
-          
           barra.style.width = "100%";
           barra.style.background = "var(--status-green)";
           terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados in RAM.<br>`;
           
           resetarBotoesFiltro();
           renderizarCards(cacheDadosEcosistema);
-          
-          // 🎯 CORREÇÃO CIRÚRGICA: Alinhado para o nome real com 'D' maiúsculo
           calcularKPIDinamicos(cacheDadosEcosistema);
           
           setTimeout(() => { modal.style.display = "none"; }, 1000);
         })
         .catch(err => {
           barra.style.width = "100%"; barra.style.background = "var(--status-red)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ALERTA]</span> Falha de rede/sincronismo: ${err.message || err}<br>`;
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] ⏳ Ativando auto-recuo: Re-tentando conexao em 5s...<br>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ALERTA]</span> Canal instável: Re-tentando conexao...<br>`;
           terminal.scrollTop = terminal.scrollHeight;
           
-          grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Google processando pacotes pesados de dados. Aguardando canal operacional...</div>";
+          grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Google processando pacotes. Aguardando canal operacional...</div>";
           
-          // ⏱️ GATILHO RESILIENTE: Executa uma nova tentativa limpa e isolada após 5 segundos de forma silenciosa
-          setTimeout(carregarDadosGlobais, 5000);
+          // Mantém a re-tentativa passando o mesmo estado do gatilho
+          setTimeout(() => { carregarDadosGlobais(forcarAtualizacaoDrive); }, 5000);
         });
     }
+
 
 
     // 🚀 ENGINE DE FILTRAGEM RELÂMPAGO
