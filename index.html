@@ -495,8 +495,15 @@
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Iniciando requisição de diagnóstico em RAM...<br>`;
       grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
 
-      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal")
-        .then(response => response.json())
+      // 🎯 ENGENHARIA RESILIENTE: Adiciona carimbo dinâmico para forçar o Google a limpar a rota e quebrar o erro 404
+      fetch(WEB_APP_URL + "?action=obterDiagnosticoGlobal&_cb=" + Date.now())
+        .then(response => {
+          // Captura erros de infraestrutura da nuvem do Google (ex: 404) antes de quebrar o parser JSON
+          if (!response.ok) {
+            throw new Error("Servidor ocupado ou instabilidade de cache (Status: " + response.status + ")");
+          }
+          return response.json();
+        })
         .then(dados => {
           if(!dados.success) {
             barra.style.width = "100%"; barra.style.background = "var(--status-red)";
@@ -508,10 +515,9 @@
           // 📥 Aloca o array retornado no cache global da RAM do navegador
           cacheDadosEcosistema = dados.data;
           
-          // 🎯 ENCONTRE ESTE TRECHO DENTRO DE carregarDadosGlobais():
           barra.style.width = "100%";
           barra.style.background = "var(--status-green)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados em RAM.<br>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span style="color: #00E676;">[SUCESSO]</span> Dados estruturais consolidados in RAM.<br>`;
           
           resetarBotoesFiltro();
           renderizarCards(cacheDadosEcosistema);
@@ -520,13 +526,20 @@
           calcularKPIDinamicos(cacheDadosEcosistema);
           
           setTimeout(() => { modal.style.display = "none"; }, 1000);
-
         })
         .catch(err => {
           barra.style.width = "100%"; barra.style.background = "var(--status-red)";
-          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[CRÍTICO]</span> Falha de rede: ${err}<br>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] <span class="log-err">[ALERTA]</span> Falha de rede/sincronismo: ${err.message || err}<br>`;
+          terminal.innerHTML += `[${new Date().toLocaleTimeString()}] ⏳ Ativando auto-recuo: Re-tentando conexao em 5s...<br>`;
+          terminal.scrollTop = terminal.scrollHeight;
+          
+          grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Google processando pacotes pesados de dados. Aguardando canal operacional...</div>";
+          
+          // ⏱️ GATILHO RESILIENTE: Executa uma nova tentativa limpa e isolada após 5 segundos de forma silenciosa
+          setTimeout(carregarDadosGlobais, 5000);
         });
     }
+
 
     // 🚀 ENGINE DE FILTRAGEM RELÂMPAGO
     function filtrarRegiao(regiaoAlvo, botaoClicado) {
