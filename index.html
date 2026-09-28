@@ -383,7 +383,7 @@
 
   <div class="dashboard-container">
     <header>
-      <h1><span>SmartCargas</span>-ECOSYSTEM DIAGNOSTIC PANEL</h1>
+      <h1><span>SmartCargas | </span>BREAKFAST DIAGNOSTIC PANEL</h1>
       <button class="btn-global" onclick="carregarDadosGlobais()">Atualizar Ecossistema</button>
     </header>
 
@@ -401,23 +401,18 @@
     </div>
 
     
-    <!-- KPI ROW METRICS -->
-    <div class="kpi-row">
-      <div class="kpi-card">
-        <p>Regionais Ativas</p>
-        <h2 id="kpi-total-sheets">54</h2>
-      </div>
-      <div class="kpi-card">
-        <p>Abas Órfãs Locais</p>
-        <h2 id="kpi-total-resgatadas" style="color: var(--purple-neon);">0</h2>
-      </div>
-      <div class="kpi-card">
-        <p>Faltantes na Master</p>
-        <h2 id="kpi-total-faltantes" style="color: #F57C00;">0</h2>
-      </div>
-      <div class="kpi-card">
-        <p>Alertas Críticos</p>
-        <h2 id="kpi-total-criticos" style="color: var(--status-red);">0</h2>
+    <!-- 📊 REVISÃO OPERACIONAL: Painel de Controle Expandido para 5 KPIs Globais -->
+    <div class="kpi-row" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+      <div class="kpi-card"><p>Regionais Ativas</p><h2 id="kpi-total-sheets">54</h2></div>
+      <div class="kpi-card"><p>Abas Órfãs Locais</p><h2 id="kpi-total-resgatadas" style="color: var(--purple-neon);">0</h2></div>
+      <div class="kpi-card"><p>Faltantes na Master</p><h2 id="kpi-total-faltantes" style="color: #F57C00;">0</h2></div>
+      <div class="kpi-card"><p>Alertas Críticos</p><h2 id="kpi-total-criticos" style="color: var(--status-red);">0</h2></div>
+      
+      <!-- 🎯 NOVO KPI FIXO DE INTELIGÊNCIA EXECUTIVA (CLICÁVEL) -->
+      <div class="kpi-card" id="card-transp-critica" onclick="abrirModalRankingTranspBacklog()" style="cursor: pointer; border: 1px solid rgba(255, 23, 68, 0.15); transition: all 0.2s ease;">
+        <p style="color: var(--status-red); font-weight: 700;">🚛 Transportadora Crítica (Backlog)</p>
+        <h2 id="kpi-transp-nome" style="font-size: 1.2rem; font-weight: 700; margin-top: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">Analisando...</h2>
+        <div id="kpi-transp-metrica" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-top: 0.2rem;">0 Rom. (0%)</div>
       </div>
     </div>
 
@@ -482,7 +477,7 @@
 
     
     // 🌟 LINK WEB APP CENTRALIZADO: Substitua pela URL gerada no deploy do seu Apps Script
-  //const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
+ // const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyGFR5tZicDgcl-dTslCI5vfdtYY6EMpOuQ9eGfcbCuHM-RsVLVNWrGbRTLdMWImM5aPA/exec"; //Perfil 1
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhN3DYLc17sloBp5EXFzEdGFe0lGfV_Gz2bpiRH5R2OkBLL1hr8aYhIx5Jus-fnSyt/exec"; //Perfil 2
 
 
@@ -691,19 +686,16 @@
     // 🚀 ENGINE ANALÍTICA SURGICAL: Concatenação pura estável, livre de erros de aspas/crases
     // 🚀 ENGINE ANALÍTICA COMPLETA: Inclui fatiamento de Dispatch % e o Monitor de 10M de Células blindado
     // 🚀 ENGINE ANALÍTICA REVISADA: Estrutura tripartite completa (Backlog, Dia e Estrutura) integrada
+    // 🚀 ENGINE RECALIBRADA PARTE 1: Equações em RAM e Algoritmo Tripartite de Cores
     function renderizarCards(listaUfs) {
       const grid = document.getElementById("grid-estados-uf");
       grid.innerHTML = "";
       
       listaUfs.forEach((uf, index) => {
-        const corClasse = uf.criticos > 0 ? 'bg-red' : (uf.orfas > 0 || uf.faltantes > 0 ? 'bg-yellow' : 'bg-green');
         const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
-        
         const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] }, celulas_conf_total: 0 };
         
-        // =========================================================================
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO DIA
-        // =========================================================================
+        // 📊 OPERAÇÃO DO DIA
         const totalDia = da.dia.concluidos.length + da.dia.parciais.length + da.dia.pendentes.length;
         const pConcluidosDia = totalDia > 0 ? Math.round((da.dia.concluidos.length / totalDia) * 100) : 0;
         const pParciaisDia   = totalDia > 0 ? Math.round((da.dia.parciais.length / totalDia) * 100) : 0;
@@ -712,9 +704,7 @@
         const qPresosDia = [...da.dia.concluidos, ...da.dia.parciais, ...da.dia.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
         const pDispatchedDia = totalDia > 0 ? Math.round(((totalDia - qPresosDia) / totalDia) * 100) : 0;
 
-        // =========================================================================
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DO BACKLOG
-        // =========================================================================
+        // 📊 OPERAÇÃO DO BACKLOG
         const totalBacklog = da.backlog.concluidos.length + da.backlog.parciais.length + da.backlog.pendentes.length;
         const pParciaisBacklog   = totalBacklog > 0 ? Math.round((da.backlog.parciais.length / totalBacklog) * 100) : 0;
         const pPendentesBacklog  = totalBacklog > 0 ? Math.round((da.backlog.pendentes.length / totalBacklog) * 100) : 0;
@@ -722,9 +712,7 @@
         const qPresosBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round(((totalBacklog - qPresosBacklog) / totalBacklog) * 100) : 0;
 
-        // =========================================================================
         // 🏗️ MONITOR DE CAPACIDADE CELULAR ISOLADO (TETO 10 MILHÕES)
-        // =========================================================================
         const totalCelulas = da.celulas_conf_total || 0;
         const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
         
@@ -748,7 +736,26 @@
                                '</div>';
 
         // =========================================================================
-        // 📥 CONCATENAÇÃO STRÍNGEA COMPLETA E UNIFICADA
+        // 🎯 ALGORITMO CROMÁTICO EM CASCATA REVISADO (REGRAS EXECUTIVAS)
+        // =========================================================================
+        let corClasse = 'bg-green'; // Fallback padrão: Conformidade total
+
+        // 🟡 TESTE 1: Concentração de faturamento do DIA (Sinal Amarelo de Operação em Andamento)
+        if (da.dia.parciais.length > 0 || da.dia.pendentes.length > 0) {
+          corClasse = 'bg-yellow';
+        }
+
+        // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver gargalo de processo)
+        if (
+          da.backlog.parciais.length > 0 || da.backlog.pendentes.length > 0 || qPresosBacklog > 0 || 
+          qPresosDia > 0 ||                                                                          
+          (parseInt(uf.orfas) || 0) > 0 || (parseInt(uf.faltantes) || 0) > 0 ||                     
+          (da.falhas_contingencia_lista || []).length > 0 || (da.falhas_limpeza_lista || []).length > 0  
+        ) {
+          corClasse = 'bg-red';
+        }
+        // =========================================================================
+        // 📥 CONCATENAÇÃO STRÍNGEA COMPLETA E UNIFICADA (PARTE 2)
         // =========================================================================
         const corContadorBacklog = qPresosBacklog > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
         const corContadorDia = qPresosDia > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
@@ -786,11 +793,10 @@
               '</div>' +
             '</div>' +
 
-            /* 🏗️ COPIE E SUBSTITUA APENAS O QUADRANTE 3 DENTRO DO SEU let cardHtml GERAL */
+            /* 🏗️ QUADRANTE 3: ESTRUTURA CONTROLE */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               
-              /* 🔗 LINKS DIRETOS CONECTADOS À EXTRATORA DE HISTÓRICO EM RAM */
               '<div class="diagnostic-item"><span>Abas Ativas:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_ativas_lista\', \'ABAS ATIVAS NO ARQUIVO\'); return false;" style="color:var(--text-main); font-weight: 600;">' + uf.abas_existentes + '</a></div>' +
               '<div class="diagnostic-item"><span>Abas Órfãs Locais:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'abas_orfas_lista\', \'ABAS ÓRFÃS LOCAIS DETECTADAS\'); return false;" style="' + (uf.orfas > 0 ? 'color: #D32F2F; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.orfas + '</a></div>' +
               '<div class="diagnostic-item"><span>Faltantes Master:</span><a href="#" class="sheet-link" onclick="abrirJanelaEstruturaDetalhe(\'' + uf.sigla + '\', \'faltantes_master_lista\', \'ROMANEIOS FALTANTES NA MASTER\'); return false;" style="' + (uf.faltantes > 0 ? 'color: #E65100; font-weight: 700;' : 'color: var(--text-muted); font-weight: 500;') + '">' + uf.faltantes + '</a></div>' +
@@ -813,6 +819,7 @@
         grid.innerHTML += cardHtml;
       });
     }
+
 
 
 
@@ -1173,12 +1180,39 @@ function buscarUfPorTexto() {
       let somaOrfas = 0;
       let somaFaltantes = 0;
       let somaCriticos = 0;
+      
+      // 📊 TELEMETRIA DE GARGALO REAL: Mapeia o share de transportadoras no Backlog Crítico
+      let mapaGargaloTransp = {};
+      let totalGeralRomaneiosNoGargalo = 0;
+      
+      // Set global de segurança para blindar a unicidade física dos Romaneios em RAM
+      let romaneiosProcessadosSet = new Set();
 
       listaUfs.forEach(uf => {
         // Puxa as propriedades exatas mapeadas pelo JSON do doGet
         somaOrfas += parseInt(uf.orfas) || 0;
         somaFaltantes += parseInt(uf.faltantes) || 0;
         somaCriticos += parseInt(uf.criticos) || 0;
+
+        const da = uf.detalhes_analiticos || {};
+        const backlogUf = da.backlog || { concluidos: [], parciais: [], pendentes: [] };
+        
+        // 🎯 CRITÉRIO PURIFICADO: Une estritamente os baldes de PARCIAIS e PENDENTES (O atraso real)
+        const frotasGargaloBacklog = [...backlogUf.parciais, ...backlogUf.pendentes];
+
+        frotasGargaloBacklog.forEach(c => {
+          let idRom = c.romaneio ? c.romaneio.toString().trim().toUpperCase() : "";
+          if (!idRom) return;
+
+          // Garante que o romaneio seja único no cálculo geral do ecossistema
+          if (!romaneiosProcessadosSet.has(idRom)) {
+            romaneiosProcessadosSet.add(idRom);
+            
+            let nomeTransp = c.transp || "Não Informada";
+            mapaGargaloTransp[nomeTransp] = (mapaGargaloTransp[nomeTransp] || 0) + 1;
+            totalGeralRomaneiosNoGargalo++;
+          }
+        });
       });
 
       // Injeta fisicamente os totais acumulados nas caixas de vidro do topo
@@ -1186,7 +1220,44 @@ function buscarUfPorTexto() {
       document.getElementById("kpi-total-resgatadas").innerText = somaOrfas;
       document.getElementById("kpi-total-faltantes").innerText = somaFaltantes;
       document.getElementById("kpi-total-criticos").innerText = somaCriticos;
+
+      // 🏆 CORRIDA DOS DADOS: Eleger a transportadora com maior número de travamentos reais
+      let transportadoraVilã = "Nenhuma / 100% OK";
+      let maiorVolumePreso = 0;
+      let percentualDeCulpa = 0;
+
+      for (let t in mapaGargaloTransp) {
+        if (mapaGargaloTransp[t] > maiorVolumePreso) {
+          maiorVolumePreso = mapaGargaloTransp[t];
+          transportadoraVilã = t;
+        }
+      }
+
+      // 🎯 CORREÇÃO CIRÚRGICA: Nomes de variáveis unificados e síncronos na RAM
+      if (totalGeralRomaneiosNoGargalo > 0 && maiorVolumePreso > 0) {
+        percentualDeCulpa = Math.round((maiorVolumePreso / totalGeralRomaneiosNoGargalo) * 100);
+      }
+
+      // Estampa os dados macro fixos direto no novo quinto card do topo
+      const elementoNome = document.getElementById("kpi-transp-nome");
+      const elementoMetrica = document.getElementById("kpi-transp-metrica");
+      const card = document.getElementById("card-transp-critica");
+
+      if (card && elementoNome && elementoMetrica) {
+        if (maiorVolumePreso > 0) {
+          elementoNome.innerText = transportadoraVilã.toUpperCase();
+          elementoMetrica.innerHTML = `<span style="color:var(--status-red); font-weight:700;">${maiorVolumePreso} Rom.</span> <span style="color:var(--text-muted); font-weight:400; margin:0 0.15rem;">/</span> ${percentualDeCulpa}% do total retido`;
+          card.style.background = "rgba(255, 23, 68, 0.02)";
+        } else {
+          elementoNome.innerText = "100% OPERACIONAL";
+          elementoMetrica.innerText = "Zero pendências";
+          card.style.background = "var(--bg-card)";
+        }
+      }
     }
+
+
+
 
     // =========================================================================
     // 📊 ENGINE UNIVERSAL DE EXPORTAÇÃO PARA CSV (EXCEL WHITE MODE PRO)
@@ -1288,6 +1359,101 @@ function buscarUfPorTexto() {
       document.getElementById("modal-logistica-detalhe").style.display = "flex";
     }
 
+        // 🎯 RELATÓRIO EXECUTIVO GLOBAL: Consolida o ranking completo de gargalos do Backlog nacional
+    // 🎯 RELATÓRIO EXECUTIVO GLOBAL: Ranking purificado baseado estritamente em Backlog Parciais e Pendentes
+    function abrirModalRankingTranspBacklog() {
+      if (!cacheDadosEcosistema || cacheDadosEcosistema.length === 0) return;
+
+      let consolidadoRanking = {};
+      let totalGeralNoGargalo = 0;
+      
+      // Set de segurança para garantir a unicidade absoluta no mapeamento do modal
+      let romaneiosProcessadosModalSet = new Set();
+
+      // Fase 1: Agrupa dados destrinchados por Transportadora + UF baseado estritamente no gargalo real
+      cacheDadosEcosistema.forEach(uf => {
+        const da = uf.detalhes_analiticos || {};
+        const backlogUf = da.backlog || { concluidos: [], parciais: [], pendentes: [] };
+        
+        // Regra de Ouro: Une estritamente os baldes de atraso real (Parciais + Pendentes)
+        const frotasAtrasadas = [...backlogUf.parciais, ...backlogUf.pendentes];
+
+        frotasAtrasadas.forEach(c => {
+          let idRom = c.romaneio ? c.romaneio.toString().trim().toUpperCase() : "";
+          if (!idRom) return;
+
+          // Processa apenas frotas exclusivas para dar match 100% com o KPI do topo (Ex: Alpha com 74)
+          if (!romaneiosProcessadosModalSet.has(idRom)) {
+            romaneiosProcessadosModalSet.add(idRom);
+            
+            let t = c.transp || "Não Informada";
+            totalGeralNoGargalo++;
+
+            if (!consolidadoRanking[t]) {
+              consolidadoRanking[t] = { total: 0, detalheUfs: {} };
+            }
+            consolidadoRanking[t].total++;
+            consolidadoRanking[t].detalheUfs[uf.sigla] = (consolidadoRanking[t].detalheUfs[uf.sigla] || 0) + 1;
+          }
+        });
+      });
+
+      document.getElementById("modal-logistica-titulo").innerText = "RANKING EXECUTIVO: PARTICIPACAO NO BACKLOG NACIONAL";
+      const caixaConteudo = document.getElementById("modal-logistica-conteudo");
+
+      if (totalGeralNoGargalo === 0) {
+        caixaConteudo.innerHTML = "<div style='text-align:center; padding-top:4rem; color:var(--status-green); font-weight:600;'>🚀 Ecossistema Limpo! Nenhuma transportadora com pendência ativa no Backlog.</div>";
+        document.getElementById("modal-logistica-detalhe").style.display = "flex";
+        return;
+      }
+
+      // Converte o objeto para array e ordena do maior gargalo para o menor
+      let arrayOrdenada = [];
+      for (let t in consolidadoRanking) {
+        arrayOrdenada.push({ nome: t, dados: consolidadoRanking[t] });
+      }
+      arrayOrdenada.sort((a, b) => b.dados.total - a.dados.total);
+
+      // Injeta a pílula de volumetria macro unificada no topo do modal
+      let htmlKpisModal = `<div class="modal-kpi-container">
+                            <div class="modal-kpi-pill" style="border-left-color: var(--status-red);">
+                              <span class="modal-kpi-title">Massa Crítica de Backlog</span>
+                              <span class="modal-kpi-value" style="color:var(--status-red);">${totalGeralNoGargalo} Romaneios Retidos</span>
+                            </div>
+                          </div>`;
+
+      let tabelaHtml = htmlKpisModal + "<table style='width:100%; border-collapse:collapse; font-size:0.82rem; text-align:left;'>" +
+                          "<thead>" +
+                            "<tr style='border-bottom:2px solid rgba(0,0,0,0.08); color:var(--status-red); font-weight:700;'> " +
+                              "<th style='padding:0.6rem 0.4rem;'>🚛 TRANSPORTADORA</th>" +
+                              "<th style='padding:0.6rem 0.4rem; text-align:center;'>📦 TOTAL DE ROMANEIOS</th>" +
+                              "<th style='padding:0.6rem 0.4rem; text-align:center;'>📊 SHARE DE PARTICIPAÇÃO</th>" +
+                              "<th style='padding:0.6rem 0.4rem;'>🗺️ IMPACTO GEOGRÁFICO DISTRIBUÍDO (UF / RECORRÊNCIAS)</th>" +
+                            "</tr>" +
+                          "</thead>" +
+                          "<tbody>";
+
+      arrayOrdenada.forEach(item => {
+        let pctShare = Math.round((item.dados.total / totalGeralNoGargalo) * 100);
+        
+        // Monta o mapa de tags estilizadas contendo o fatiamento por estado (Ex: SP: 12 | RS: 4)
+        let stringUfsSegmentadas = [];
+        for (let estado in item.dados.detalheUfs) {
+          stringUfsSegmentadas.push(`<span style="background:var(--bg-global); padding:0.15rem 0.4rem; border-radius:4px; font-weight:600; margin-right:0.3rem; display:inline-block; font-size:0.75rem;">${estado}: <span style="color:var(--purple-neon);">${item.dados.detalheUfs[estado]}</span></span>`);
+        }
+
+        tabelaHtml += `<tr style="border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;">
+                         <td style="padding:0.75rem 0.4rem; font-weight:700; color:var(--text-main);">${item.nome.toUpperCase()}</td>
+                         <td style="padding:0.75rem 0.4rem; text-align:center; font-weight:700; color:var(--status-red); font-size:0.9rem;">${item.dados.total}</td>
+                         <td style="padding:0.75rem 0.4rem; text-align:center; font-weight:700; color:var(--text-muted);">${pctShare}%</td>
+                         <td style="padding:0.75rem 0.4rem; line-height:1.6;">${stringUfsSegmentadas.join("")}</td>
+                       </tr>`;
+      });
+
+      tabelaHtml += "</tbody></table>";
+      caixaConteudo.innerHTML = tabelaHtml;
+      document.getElementById("modal-logistica-detalhe").style.display = "flex";
+    }
     
   </script>
 </body>
