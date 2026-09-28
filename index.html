@@ -983,11 +983,16 @@
                             "</thead>" +
                             "<tbody>";
         
+        // 🎯 LEITOR INLINE FIXO: Insere a descrição do critério direto no navegador, poupando a rede
         listaFalhas.forEach(f => {
+          let descricaoFalhaFixa = campoListaPropriedade === 'falhas_contingencia_lista' 
+            ? "Carga concluída no passado, mas a aba secundária física não foi deletada." 
+            : "Carga concluída em lote anterior, mas a linha permanece ativa na aba ROMANEIOS.";
+
           tabelaHtml += "<tr style='border-bottom:1px solid rgba(0,0,0,0.04); font-weight:500; vertical-align:top;'>" +
                            "<td style='padding:0.6rem 0.4rem; font-weight:700; font-family:monospace; color:var(--text-main);'>" + (f.romaneio || "Sem ID") + "</td>" +
-                           "<td style='padding:0.6rem 0.4rem; color:var(--text-muted); line-height: 1.4;'>" + (f.falha || "Inconsistência genérica detectada.") + "</td>" +
-                         "</tr>";
+                           "<td style='padding:0.6rem 0.4rem; color:var(--text-muted); line-height: 1.4;'>" + descricaoFalhaFixa + "</td>" +
+                        "</tr>";
         });
         
         tabelaHtml += "</tbody></table>";
