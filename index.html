@@ -628,7 +628,14 @@
       
       listaUfs.forEach((uf, index) => {
         const dataFormatadaPronta = formatarDataBR(uf.atualizado_em);
-        const da = uf.detalhes_analiticos || { dia: { concluidos: [], parciais: [], pendentes: [] }, backlog: { concluidos: [], parciais: [], pendentes: [] }, celulas_conf_total: 0 };
+        
+        // 🎯 INICIALIZAÇÃO SEGURA: Previne quebras caso o balde ontem ainda não tenha sido processado por alguma UF
+        const da = uf.detalhes_analiticos || { 
+          dia: { concluidos: [], parciais: [], pendentes: [] }, 
+          ontem: { concluidos: [], parciais: [], pendentes: [] },
+          backlog: { concluidos: [], parciais: [], pendentes: [] }, 
+          celulas_conf_total: 0 
+        };
         
         // 📊 OPERAÇÃO DO DIA
         const totalDia = da.dia.concluidos.length + da.dia.parciais.length + da.dia.pendentes.length;
@@ -647,16 +654,16 @@
         const qPresosBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round(((totalBacklog - qPresosBacklog) / totalBacklog) * 100) : 0;
 
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DE ONTEM (FRESCO)
+        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DE ONTEM & FDS
         const totalOntem = da.ontem ? (da.ontem.concluidos.length + da.ontem.parciais.length + da.ontem.pendentes.length) : 0;
-        const pParciaisOntem   = totalOntem > 0 ? Math.round((da.ontem.parciais.length / totalOntem) * 100) : 0;
-        const pPendentesOntem  = totalOntem > 0 ? Math.round((da.ontem.pendentes.length / totalOntem) * 100) : 0;
+        const totalParciaisOntem = da.ontem ? da.ontem.parciais.length : 0; // 🎯 ALOCADO: Fim do ReferenceError!
+        const totalPendentesOntem = da.ontem ? da.ontem.pendentes.length : 0; // 🎯 ALOCADO: Fim do ReferenceError!
+        const pParciaisOntem   = totalOntem > 0 ? Math.round((totalParciaisOntem / totalOntem) * 100) : 0;
+        const pPendentesOntem  = totalOntem > 0 ? Math.round((totalPendentesOntem / totalOntem) * 100) : 0;
       
         const qPresosOntem = da.ontem ? [...da.ontem.concluidos, ...da.ontem.parciais, ...da.ontem.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length : 0;
         const pDispatchedOntem = totalOntem > 0 ? Math.round(((totalOntem - qPresosOntem) / totalOntem) * 100) : 0;
         const corContadorOntem = qPresosOntem > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
-
-
         
         // 🏗️ MONITOR DE CAPACIDADE CELULAR ISOLADO (TETO 10 MILHÕES)
         const totalCelulas = da.celulas_conf_total || 0;
@@ -684,20 +691,19 @@
         // =========================================================================
         // 🎯 ALGORITMO CROMÁTICO EM CASCATA REVISADO (REGRAS EXECUTIVAS)
         // =========================================================================
-        let corClasse = 'bg-green'; // Fallback padrão: Conformidade total
+        let corClasse = 'bg-green'; 
 
-        // 🟡 TESTE 1: Concentração de faturamento do DIA (Sinal Amarelo de Operação em Andamento)
-        if (da.dia.parciais.length > 0 || da.dia.pendentes.length > 0) {
+        // 🟡 TESTE 1: Concentração de faturamento do DIA ou ONTEM (Sinal Amarelo de Fluxo Ativo)
+        if (da.dia.parciais.length > 0 || da.dia.pendentes.length > 0 || totalParciaisOntem > 0 || totalPendentesOntem > 0) {
           corClasse = 'bg-yellow';
         }
 
-        // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver gargalo de processo)
-        // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver gargalo de processo)
+        // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver bloqueio real)
         if (
-          da.backlog.parciais.length > 0 || da.backlog.pendentes.length > 0 || qPresosBacklog > 0 || // Atrasos Históricos
-          totalParciaisOntem > 0 || totalPendentesOntem > 0 || qPresosOntem > 0 ||                   // Pendências de Ontem/Fim de Semana
-          qPresosDia > 0 ||                                                                          // Cargas sem Despacho no Dia
-          (parseInt(uf.orfas) || 0) > 0 || (parseInt(uf.faltantes) || 0) > 0 ||                     // Inconsistências de abas físicas
+          da.backlog.parciais.length > 0 || da.backlog.pendentes.length > 0 || qPresosBacklog > 0 || 
+          qPresosOntem > 0 ||                                                                        
+          qPresosDia > 0 ||                                                                          
+          (parseInt(uf.orfas) || 0) > 0 || (parseInt(uf.faltantes) || 0) > 0 ||                     
           (da.falhas_contingencia_lista || []).length > 0 || (da.falhas_limpeza_lista || []).length > 0
         ) {
           corClasse = 'bg-red';
@@ -717,9 +723,9 @@
             
             '<a href="https://google.com' + uf.id_planilha_prod + '" target="_blank" class="sheet-link">🔗 Planilha Produção</a>' +
             
-            /* 📅 QUADRANTE 1: ROMANEIOS / BACKLOG */
+            /* 📅 QUADRANTE 1: ROMANEIOS / BACKLOG HISTÓRICO */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem;">' +
-              '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG</div>' +
+              '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">📅 ROMANEIOS / BACKLOG HISTÓRICO</div>' +
               '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisBacklog + '% (' + da.backlog.parciais.length + ')</a></div>' +
               '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'backlog\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesBacklog + '% (' + da.backlog.pendentes.length + ')</a></div>' +
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
@@ -728,7 +734,7 @@
                 '</a>' +
               '</div>' +
             '</div>' +
-
+          
             /* 📅 QUADRANTE 1.2: ROMANEIOS / ONTEM (NOVO BALDE STRÍNGEA) */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">🗓️ ROMANEIOS / ONTEM & FDS</div>' +
@@ -754,7 +760,7 @@
               '</div>' +
             '</div>' +
 
-            /* 🏗️ QUADRANTE 3: ESTRUTURA CONTROLE */
+            /* 🏗️ QUADRANTE 3: ESTRUTURA CONTROLE CUSTOMIZADO */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--text-muted);">🏗️ ESTRUTURA</div>' +
               
@@ -780,6 +786,8 @@
         grid.innerHTML += cardHtml;
       });
     }
+
+
 
 
 
