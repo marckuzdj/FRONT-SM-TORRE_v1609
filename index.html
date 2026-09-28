@@ -654,10 +654,17 @@
         const qPresosBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round(((totalBacklog - qPresosBacklog) / totalBacklog) * 100) : 0;
 
-        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DE ONTEM & FDS
-        const totalOntem = da.ontem ? (da.ontem.concluidos.length + da.ontem.parciais.length + da.ontem.pendentes.length) : 0;
-        const totalParciaisOntem = da.ontem ? da.ontem.parciais.length : 0; // 🎯 ALOCADO: Fim do ReferenceError!
-        const totalPendentesOntem = da.ontem ? da.ontem.pendentes.length : 0; // 🎯 ALOCADO: Fim do ReferenceError!
+        // =========================================================================
+        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DE ONTEM & FDS (EXPANDIDO)
+        // =========================================================================
+        const totalOntem = (da.ontem ? da.ontem.concluidos.length : 0) + (da.ontem ? da.ontem.parciais.length : 0) + (da.ontem ? da.ontem.pendentes.length : 0);
+        
+        // 🎯 Injeção Cirúrgica: Puxa e calcula o share de Concluídos do balde de Ontem
+        const totalConcluidosOntem = da.ontem ? da.ontem.concluidos.length : 0;
+        const pConcluidosOntem = totalOntem > 0 ? Math.round((totalConcluidosOntem / totalOntem) * 100) : 0;
+        
+        const totalParciaisOntem = da.ontem ? da.ontem.parciais.length : 0;
+        const totalPendentesOntem = da.ontem ? da.ontem.pendentes.length : 0;
         const pParciaisOntem   = totalOntem > 0 ? Math.round((totalParciaisOntem / totalOntem) * 100) : 0;
         const pPendentesOntem  = totalOntem > 0 ? Math.round((totalPendentesOntem / totalOntem) * 100) : 0;
       
@@ -734,18 +741,24 @@
                 '</a>' +
               '</div>' +
             '</div>' +
+
           
-            /* 📅 QUADRANTE 1.2: ROMANEIOS / ONTEM (NOVO BALDE STRÍNGEA) */
+            /* 📅 QUADRANTE 1.2: ROMANEIOS / ONTEM (NOVO BALDE EXPANDIDO) */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
               '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">🗓️ ROMANEIOS / ONTEM & FDS</div>' +
-              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisOntem + '% (' + (da.ontem ? da.ontem.parciais.length : 0) + ')</a></div>' +
-              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesOntem + '% (' + (da.ontem ? da.ontem.pendentes.length : 0) + ')</a></div>' +
+              
+              /* 🎯 NOVO LINK DIRETAMENTE CONECTADO ÀS CARGAS CONCLUÍDAS DE ONTEM */
+              '<div class="diagnostic-item"><span>Concluídos:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'concluidos\'); return false;">' + pConcluidosOntem + '% (' + totalConcluidosOntem + ')</a></div>' +
+              
+              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisOntem + '% (' + totalParciaisOntem + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesOntem + '% (' + totalPendentesOntem + ')</a></div>' +
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'ontem\'); return false;" style="color:#00C853; font-weight:700;">' + 
                   pDispatchedOntem + '% <span style="color:var(--text-muted); font-weight:400; margin:0 0.2rem;">/</span> <span style="' + corContadorOntem + '">' + qPresosOntem + '</span>' +
                 '</a>' +
               '</div>' +
             '</div>' +
+
 
             /* ☀️ QUADRANTE 2: ROMANEIOS / DIA */
             '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
