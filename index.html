@@ -496,10 +496,14 @@
       terminal.innerHTML = `[${new Date().toLocaleTimeString()}] 📡 Conectando na malha de servidores...<br>`;
       grid.innerHTML = "<div style='grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 3rem; font-weight: 500;'>📡 Conectando e consolidando a malha de estados em RAM...</div>";
 
-      // 🎯 ACPLAMENTO SEGURO: Se o parâmetro for true, injeta o force=true na URL da API, junto com o limpador de cache
+      // 🎯 ACPLAMENTO DE ALTA PERFORMANCE: Adiciona o cache-buster e configura o modo de redirecionamento nativo
       const urlFinalRequest = WEB_APP_URL + "?action=obterDiagnosticoGlobal&force=" + forcarAtualizacaoDrive + "&_cb=" + Date.now();
 
-      fetch(urlFinalRequest)
+      fetch(urlFinalRequest, {
+        method: "GET",
+        mode: "cors", // 🌟 FORÇA O NAVEGADOR A ACEITAR A POLÍTICA DE DIRECIONAMENTO
+        redirect: "follow" // 🌟 OBRIGA O FETCH A SEGUIR O REDIRECIONAMENTO 302 DO GOOGLE PARA A URL SECUNDÁRIA
+      })
         .then(response => {
           if (!response.ok) {
             throw new Error("Servidor ocupado ou instabilidade de cache (Status: " + response.status + ")");
