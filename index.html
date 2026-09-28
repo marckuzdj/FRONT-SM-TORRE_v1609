@@ -647,6 +647,17 @@
         const qPresosBacklog = [...da.backlog.concluidos, ...da.backlog.parciais, ...da.backlog.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length;
         const pDispatchedBacklog = totalBacklog > 0 ? Math.round(((totalBacklog - qPresosBacklog) / totalBacklog) * 100) : 0;
 
+        // 📊 EQUAÇÕES MATEMÁTICAS EM RAM: OPERAÇÃO DE ONTEM (FRESCO)
+        const totalOntem = da.ontem ? (da.ontem.concluidos.length + da.ontem.parciais.length + da.ontem.pendentes.length) : 0;
+        const pParciaisOntem   = totalOntem > 0 ? Math.round((da.ontem.parciais.length / totalOntem) * 100) : 0;
+        const pPendentesOntem  = totalOntem > 0 ? Math.round((da.ontem.pendentes.length / totalOntem) * 100) : 0;
+      
+        const qPresosOntem = da.ontem ? [...da.ontem.concluidos, ...da.ontem.parciais, ...da.ontem.pendentes].filter(c => !c.dispatch || c.dispatch === "Aguardando" || c.dispatch.toString().trim() === "").length : 0;
+        const pDispatchedOntem = totalOntem > 0 ? Math.round(((totalOntem - qPresosOntem) / totalOntem) * 100) : 0;
+        const corContadorOntem = qPresosOntem > 0 ? 'color: var(--status-red); font-weight: 800;' : 'color: var(--text-muted);';
+
+
+        
         // 🏗️ MONITOR DE CAPACIDADE CELULAR ISOLADO (TETO 10 MILHÕES)
         const totalCelulas = da.celulas_conf_total || 0;
         const pConsumo = Math.min(Math.round((totalCelulas / 10000000) * 100), 100);
@@ -681,14 +692,17 @@
         }
 
         // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver gargalo de processo)
+        // 🔴 TESTE 2: Critério de Gravidade Máxima (Sobrepõe e força o Vermelho se houver gargalo de processo)
         if (
-          da.backlog.parciais.length > 0 || da.backlog.pendentes.length > 0 || qPresosBacklog > 0 || 
-          qPresosDia > 0 ||                                                                          
-          (parseInt(uf.orfas) || 0) > 0 || (parseInt(uf.faltantes) || 0) > 0 ||                     
-          (da.falhas_contingencia_lista || []).length > 0 || (da.falhas_limpeza_lista || []).length > 0  
+          da.backlog.parciais.length > 0 || da.backlog.pendentes.length > 0 || qPresosBacklog > 0 || // Atrasos Históricos
+          totalParciaisOntem > 0 || totalPendentesOntem > 0 || qPresosOntem > 0 ||                   // Pendências de Ontem/Fim de Semana
+          qPresosDia > 0 ||                                                                          // Cargas sem Despacho no Dia
+          (parseInt(uf.orfas) || 0) > 0 || (parseInt(uf.faltantes) || 0) > 0 ||                     // Inconsistências de abas físicas
+          (da.falhas_contingencia_lista || []).length > 0 || (da.falhas_limpeza_lista || []).length > 0
         ) {
           corClasse = 'bg-red';
         }
+
         // =========================================================================
         // 📥 CONCATENAÇÃO STRÍNGEA COMPLETA E UNIFICADA (PARTE 2)
         // =========================================================================
@@ -711,6 +725,18 @@
               '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
                 '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'backlog\'); return false;" style="color:#00C853; font-weight:700;">' + 
                   pDispatchedBacklog + '% <span style="color:var(--text-muted); font-weight:400; margin:0 0.2rem;">/</span> <span style="' + corContadorBacklog + '">' + qPresosBacklog + '</span>' +
+                '</a>' +
+              '</div>' +
+            '</div>' +
+
+            /* 📅 QUADRANTE 1.2: ROMANEIOS / ONTEM (NOVO BALDE STRÍNGEA) */
+            '<div class="diagnostic-box" style="margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(0,0,0,0.03);">' +
+              '<div style="font-weight:700; font-size:0.85rem; margin-bottom:0.4rem; color:var(--purple-neon);">🗓️ ROMANEIOS / ONTEM & FDS</div>' +
+              '<div class="diagnostic-item"><span>Parciais:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'parciais\'); return false;" style="color:#F57C00;">' + pParciaisOntem + '% (' + (da.ontem ? da.ontem.parciais.length : 0) + ')</a></div>' +
+              '<div class="diagnostic-item"><span>Pendentes:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogistica(\'' + uf.sigla + '\', \'ontem\', \'pendentes\'); return false;" style="color:var(--status-red);">' + pPendentesOntem + '% (' + (da.ontem ? da.ontem.pendentes.length : 0) + ')</a></div>' +
+              '<div class="diagnostic-item" style="border-top: 1px dashed rgba(0,0,0,0.03); margin-top: 0.3rem; padding-top: 0.3rem;">' +
+                '<span>Dispatched:</span><a href="#" class="sheet-link" onclick="abrirJanelaLogisticaEspecial(\'' + uf.sigla + '\', \'ontem\'); return false;" style="color:#00C853; font-weight:700;">' + 
+                  pDispatchedOntem + '% <span style="color:var(--text-muted); font-weight:400; margin:0 0.2rem;">/</span> <span style="' + corContadorOntem + '">' + qPresosOntem + '</span>' +
                 '</a>' +
               '</div>' +
             '</div>' +
