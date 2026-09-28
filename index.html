@@ -416,6 +416,23 @@
       </div>
     </div>
 
+          <!-- 🏗️ CARD DE SEGURANÇA OPERACIONAL: MONITORAMENTO DUPLO DISPATCH -->
+      <div class="kpi-card" style="border: 1px solid rgba(138, 5, 190, 0.15); padding: 1.1rem; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
+        <p style="color: var(--purple-neon); font-weight: 700; margin-bottom: 0px; font-size: 0.75rem;">💾 CAPACIDADE DISPATCH (TETO 10M)</p>
+        
+        <!-- Pílula Linha 1: DISPATCH TEMP -->
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 0.3rem;">
+          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">TEMP:</span>
+          <span id="kpi-sat-temp" style="font-size: 0.85rem; font-weight: 700; color: #000;">0K (0%)</span>
+        </div>
+
+        <!-- Pílula Linha 2: DISPATCH DATABASE -->
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">DATABASE:</span>
+          <span id="kpi-sat-db" style="font-size: 0.85rem; font-weight: 700; color: #000;">0K (0%)</span>
+        </div>
+      </div>
+    
     <!-- UF STATES GRID DISPLAY -->
     <div class="uf-grid" id="grid-estados-uf"></div>
   </div>
@@ -1241,7 +1258,42 @@ function buscarUfPorTexto() {
           card.style.background = "var(--bg-card)";
         }
       }
+
+      // =========================================================================
+      // 🏗️ MONITOR DE INFRAESTRUTURA: PROCESSAMENTO DUPLO (TEMP & DATABASE)
+      // =========================================================================
+      if (listaUfs.length > 0) {
+        // Pesca os contadores agregados a partir do primeiro registro estável do payload
+        const primeiraUf = listaUfs[0];
+        const daSatelite = primeiraUf.detalhes_analiticos || {};
+        
+        const cellTemp = daSatelite.celulas_dispatch_temp || 0;
+        const cellDb   = daSatelite.celulas_dispatch_database || 0;
+        
+        // Equações de Share de teto matemático contra o limite de 10 milhões do Google Sheets
+        const pctTemp = Math.min(Math.round((cellTemp / 10000000) * 100), 100);
+        const pctDb   = Math.min(Math.round((cellDb / 10000000) * 100), 100);
+        
+        const txtTemp = cellTemp >= 1000000 ? (cellTemp / 1000000).toFixed(1) + 'M' : (cellTemp / 1000).toFixed(0) + 'K';
+        const txtDb   = cellDb >= 1000000 ? (cellDb / 1000000).toFixed(1) + 'M' : (cellDb / 1000).toFixed(0) + 'K';
+
+        // Definição reativa de cores por pílula de capacidade
+        let corTemp = 'var(--status-green)'; if (pctTemp >= 90) corTemp = 'var(--status-red)'; else if (pctTemp >= 70) corTemp = '#F57C00';
+        let corDb   = 'var(--status-green)'; if (pctDb >= 90) corDb = 'var(--status-red)'; else if (pctDb >= 70) corDb = '#F57C00';
+
+        // Injeta e atualiza os elementos físicos do 6º Card do topo na SPA clara
+        const elTemp = document.getElementById("kpi-sat-temp");
+        const elDb   = document.getElementById("kpi-sat-db");
+        
+        if (elTemp) {
+          elTemp.innerHTML = `<span style="color:${corTemp};">${txtTemp}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.75rem;">(${pctTemp}%)</span>`;
+        }
+        if (elDb) {
+          elDb.innerHTML = `<span style="color:${corDb};">${txtDb}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.75rem;">(${pctDb}%)</span>`;
+        }
+      }
     }
+
 
 
 
