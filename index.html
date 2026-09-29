@@ -402,31 +402,31 @@
 
     
     <!-- 📊 REVISÃO OPERACIONAL: Painel de Controle Expandido para 5 KPIs Globais -->
-    <div class="kpi-row" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.5rem; margin-bottom: 2.5rem;">
+    <!-- 📊 PAINEL EXECUTIVO: Proporções Assimétricas Inteligentes (Mais espaço para números, menos para barras) -->
+    <div class="kpi-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.1fr 0.9fr; gap: 1rem; margin-bottom: 2.5rem;">
       <div class="kpi-card"><p>Regionais Ativas</p><h2 id="kpi-total-sheets">54</h2></div>
       <div class="kpi-card"><p>Abas Órfãs Locais</p><h2 id="kpi-total-resgatadas" style="color: var(--purple-neon);">0</h2></div>
-      <div class="kpi-card"><p>Faltantes na Master</p><h2 id="kpi-total-faltantes" style="color: #F57C00;">0</h2></div>
+      <div class="kpi-card"><p>Finalização Pendente</p><h2 id="kpi-total-faltantes" style="color: #F57C00;">0</h2></div>
       <div class="kpi-card"><p>Alertas Críticos</p><h2 id="kpi-total-criticos" style="color: var(--status-red);">0</h2></div>
       
-      <!-- 🎯 NOVO KPI FIXO DE INTELIGÊNCIA EXECUTIVA (CLICÁVEL) -->
-      <div class="kpi-card" id="card-transp-critica" onclick="abrirModalRankingTranspBacklog()" style="cursor: pointer; border: 1px solid rgba(255, 23, 68, 0.15); transition: all 0.2s ease;">
-        <p style="color: var(--status-red); font-weight: 700;">🚛 Transportadora Crítica (Backlog)</p>
-        <h2 id="kpi-transp-nome" style="font-size: 1.2rem; font-weight: 700; margin-top: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">Analisando...</h2>
-        <div id="kpi-transp-metrica" style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-top: 0.2rem;">0 Rom. (0%)</div>
+      <!-- Card Clicável da Transportadora Crítica -->
+      <div class="kpi-card" id="card-transp-critica" onclick="abrirModalRankingTranspBacklog()" style="cursor: pointer; border: 1px solid rgba(255, 23, 68, 0.15); transition: all 0.2s ease; padding: 1.25rem 1rem;">
+        <p style="color: var(--status-red); font-weight: 700;">🚛 Transp. Crítica (Backlog)</p>
+        <h2 id="kpi-transp-nome" style="font-size: 1.15rem; font-weight: 700; margin-top: 0.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main);">Analisando...</h2>
+        <div id="kpi-transp-metrica" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-top: 0.2rem;">0 Rom. (0%)</div>
       </div>
-    </div>
 
-      <!-- 🏗️ CARD DE SEGURANÇA OPERACIONAL: MONITORAMENTO DUPLO COM BARRAS DE PROGRESSO -->
-      <div class="kpi-card" style="border: 1px solid rgba(138, 5, 190, 0.15); padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.6rem;">
-        <p style="color: var(--purple-neon); font-weight: 700; margin-bottom: 2px; font-size: 0.72rem; letter-spacing: 0.3px;">💾 CAPACIDADE EXPEDIÇÃO (TETO 10M)</p>
+      <!-- 🏗️ CARD DE SEGURANÇA OPERACIONAL COMPACTADO (LARGURA ENXUTA) -->
+      <div class="kpi-card" style="border: 1px solid rgba(138, 5, 190, 0.15); padding: 1rem; display: flex; flex-direction: column; justify-content: center; gap: 0.45rem;">
+        <p style="color: var(--purple-neon); font-weight: 700; margin-bottom: 2px; font-size: 0.68rem; letter-spacing: 0.1px; white-space: nowrap;">💾 CAPACIDADE DISPATCH (TETO 10M)</p>
         
         <!-- Pílula Progress 1: DISPATCH TEMP -->
         <div class="cells-progress-container" style="margin-top: 0px;">
           <div class="cells-label-row" style="margin-bottom: 0.15rem;">
-            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.75rem;">TEMP:</span>
-            <span id="kpi-sat-temp-txt" style="font-weight: 700; font-size: 0.75rem; color: #000;">0K (0%)</span>
+            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.72rem;">TEMP:</span>
+            <span id="kpi-sat-temp-txt" style="font-weight: 700; font-size: 0.72rem; color: #000;">0K (0%)</span>
           </div>
-          <div class="cells-bg-bar" style="height: 5px;">
+          <div class="cells-bg-bar" style="height: 4px;">
             <div id="kpi-sat-temp-bar" class="cells-fill-bar" style="width: 0%; height: 100%; background-color: var(--status-green);"></div>
           </div>
         </div>
@@ -434,14 +434,16 @@
         <!-- Pílula Progress 2: DISPATCH DATABASE -->
         <div class="cells-progress-container" style="margin-top: 0px;">
           <div class="cells-label-row" style="margin-bottom: 0.15rem;">
-            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.75rem;">DATABASE:</span>
-            <span id="kpi-sat-db-txt" style="font-weight: 700; font-size: 0.75rem; color: #000;">0K (0%)</span>
+            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.72rem;">DATABASE:</span>
+            <span id="kpi-sat-db-txt" style="font-weight: 700; font-size: 0.72rem; color: #000;">0K (0%)</span>
           </div>
-          <div class="cells-bg-bar" style="height: 5px;">
+          <div class="cells-bg-bar" style="height: 4px;">
             <div id="kpi-sat-db-bar" class="cells-fill-bar" style="width: 0%; height: 100%; background-color: var(--status-green);"></div>
           </div>
         </div>
       </div>
+    </div>
+
     
     <!-- UF STATES GRID DISPLAY -->
     <div class="uf-grid" id="grid-estados-uf"></div>
