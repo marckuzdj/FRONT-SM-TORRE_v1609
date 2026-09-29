@@ -416,20 +416,30 @@
       </div>
     </div>
 
-          <!-- 🏗️ CARD DE SEGURANÇA OPERACIONAL: MONITORAMENTO DUPLO DISPATCH -->
-      <div class="kpi-card" style="border: 1px solid rgba(138, 5, 190, 0.15); padding: 1.1rem; display: flex; flex-direction: column; justify-content: center; gap: 0.5rem;">
-        <p style="color: var(--purple-neon); font-weight: 700; margin-bottom: 0px; font-size: 0.75rem;">💾 CAPACIDADE DISPATCH (TETO 10M)</p>
+      <!-- 🏗️ CARD DE SEGURANÇA OPERACIONAL: MONITORAMENTO DUPLO COM BARRAS DE PROGRESSO -->
+      <div class="kpi-card" style="border: 1px solid rgba(138, 5, 190, 0.15); padding: 1.1rem; display: flex; flex-direction: column; justify-content: space-between; gap: 0.6rem;">
+        <p style="color: var(--purple-neon); font-weight: 700; margin-bottom: 2px; font-size: 0.72rem; letter-spacing: 0.3px;">💾 CAPACIDADE EXPEDIÇÃO (TETO 10M)</p>
         
-        <!-- Pílula Linha 1: DISPATCH TEMP -->
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(0,0,0,0.05); padding-bottom: 0.3rem;">
-          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">TEMP:</span>
-          <span id="kpi-sat-temp" style="font-size: 0.85rem; font-weight: 700; color: #000;">0K (0%)</span>
+        <!-- Pílula Progress 1: DISPATCH TEMP -->
+        <div class="cells-progress-container" style="margin-top: 0px;">
+          <div class="cells-label-row" style="margin-bottom: 0.15rem;">
+            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.75rem;">TEMP:</span>
+            <span id="kpi-sat-temp-txt" style="font-weight: 700; font-size: 0.75rem; color: #000;">0K (0%)</span>
+          </div>
+          <div class="cells-bg-bar" style="height: 5px;">
+            <div id="kpi-sat-temp-bar" class="cells-fill-bar" style="width: 0%; height: 100%; background-color: var(--status-green);"></div>
+          </div>
         </div>
 
-        <!-- Pílula Linha 2: DISPATCH DATABASE -->
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted);">DATABASE:</span>
-          <span id="kpi-sat-db" style="font-size: 0.85rem; font-weight: 700; color: #000;">0K (0%)</span>
+        <!-- Pílula Progress 2: DISPATCH DATABASE -->
+        <div class="cells-progress-container" style="margin-top: 0px;">
+          <div class="cells-label-row" style="margin-bottom: 0.15rem;">
+            <span style="font-weight: 600; color: var(--text-muted); font-size: 0.75rem;">DATABASE:</span>
+            <span id="kpi-sat-db-txt" style="font-weight: 700; font-size: 0.75rem; color: #000;">0K (0%)</span>
+          </div>
+          <div class="cells-bg-bar" style="height: 5px;">
+            <div id="kpi-sat-db-bar" class="cells-fill-bar" style="width: 0%; height: 100%; background-color: var(--status-green);"></div>
+          </div>
         </div>
       </div>
     
@@ -1262,8 +1272,10 @@ function buscarUfPorTexto() {
       // =========================================================================
       // 🏗️ MONITOR DE INFRAESTRUTURA: PROCESSAMENTO DUPLO (TEMP & DATABASE)
       // =========================================================================
+      // =========================================================================
+      // 🏗️ MONITOR DE INFRAESTRUTURA: PROCESSAMENTO DUPLO COM INFLEXÃO DE BARRAS
+      // =========================================================================
       if (listaUfs.length > 0) {
-        // Pesca os contadores agregados a partir do primeiro registro estável do payload
         const primeiraUf = listaUfs[0];
         const daSatelite = primeiraUf.detalhes_analiticos || {};
         
@@ -1277,19 +1289,26 @@ function buscarUfPorTexto() {
         const txtTemp = cellTemp >= 1000000 ? (cellTemp / 1000000).toFixed(1) + 'M' : (cellTemp / 1000).toFixed(0) + 'K';
         const txtDb   = cellDb >= 1000000 ? (cellDb / 1000000).toFixed(1) + 'M' : (cellDb / 1000).toFixed(0) + 'K';
 
-        // Definição reativa de cores por pílula de capacidade
+        // Definição reativa de cores por nível crítico
         let corTemp = 'var(--status-green)'; if (pctTemp >= 90) corTemp = 'var(--status-red)'; else if (pctTemp >= 70) corTemp = '#F57C00';
         let corDb   = 'var(--status-green)'; if (pctDb >= 90) corDb = 'var(--status-red)'; else if (pctDb >= 70) corDb = '#F57C00';
 
-        // Injeta e atualiza os elementos físicos do 6º Card do topo na SPA clara
-        const elTemp = document.getElementById("kpi-sat-temp");
-        const elDb   = document.getElementById("kpi-sat-db");
+        // Captura síncrona dos seletores de texto e de largura física das barras
+        const txtElTemp = document.getElementById("kpi-sat-temp-txt");
+        const barElTemp = document.getElementById("kpi-sat-temp-bar");
+        const txtElDb   = document.getElementById("kpi-sat-db-txt");
+        const barElDb   = document.getElementById("kpi-sat-db-bar");
         
-        if (elTemp) {
-          elTemp.innerHTML = `<span style="color:${corTemp};">${txtTemp}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.75rem;">(${pctTemp}%)</span>`;
+        // Injeta os dados textuais e realiza a flexão de largura e cor nativa (CSS Inline)
+        if (txtElTemp && barElTemp) {
+          txtElTemp.innerHTML = `<span style="color:${corTemp};">${txtTemp}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.7rem;">(${pctTemp}%)</span>`;
+          barElTemp.style.width = pctTemp + "%";
+          barElTemp.style.backgroundColor = corTemp;
         }
-        if (elDb) {
-          elDb.innerHTML = `<span style="color:${corDb};">${txtDb}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.75rem;">(${pctDb}%)</span>`;
+        if (txtElDb && barElDb) {
+          txtElDb.innerHTML = `<span style="color:${corDb};">${txtDb}</span> <span style="font-weight:500; color:var(--text-muted); font-size:0.7rem;">(${pctDb}%)</span>`;
+          barElDb.style.width = pctDb + "%";
+          barElDb.style.backgroundColor = corDb;
         }
       }
     }
